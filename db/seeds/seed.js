@@ -17,10 +17,10 @@ exports.seed = function(knex) {
       return Promise.all([topicsInsertions, usersInsertions]);
     })
     .then(([topicsInsertions, usersInsertions]) => {
-      console.log(topicsInsertions, "TOPICS");
+      //console.log(topicsInsertions, "TOPICS");
 
       const articleInsertions = formatDates(articleData);
-      console.log(articleInsertions, "USERS");
+      //console.log(articleInsertions, "USERS");
       return knex("articles")
         .insert(articleInsertions)
         .returning("*");

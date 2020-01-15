@@ -9,6 +9,6 @@ exports.up = function(knex) {
   });
 };
 exports.down = function(knex) {
-  console.log("in the down");
+  // console.log("in the down");
   return knex.schema.dropTable("users");
 };
