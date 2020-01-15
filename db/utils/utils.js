@@ -25,7 +25,7 @@ exports.makeRefObj = (list, key, value) => {
 exports.formatComments = (comments, articleRef) => {
   return comments.map(iteratedComment => {
     const newComments = { ...iteratedComment };
-
+    //console.log(newComments, "HELOOOO");
     const alteredObj = {
       body: newComments.body,
       article_id: articleRef[newComments.belongs_to],

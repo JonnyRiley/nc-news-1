@@ -30,7 +30,7 @@ describe("/api", () => {
   });
 });
 
-describe.only("/api", () => {
+describe("/api", () => {
   beforeEach(() => {
     return connection.seed.run();
   });
@@ -43,9 +43,44 @@ describe.only("/api", () => {
       .expect(200)
       .then(res => {
         const { users } = res.body;
-        console.log(res.body);
-        //selectUsers("use")
+        //console.log(res.body);
         expect(users[0].username).to.equal("rogersop");
+      });
+  });
+  it("returns status 400 for invalid username column", () => {
+    return request(app)
+      .get("/api/users/53billyGoat")
+      .expect(400)
+      .then(res => {
+        //console.log(res.body);
+        expect(res.body.msg).to.equal("Invalid column provided to username");
+      });
+  });
+});
+describe.only("/api", () => {
+  beforeEach(() => {
+    return connection.seed.run();
+  });
+  after(function() {
+    return connection.destroy();
+  });
+  it("GET - Responds with an object with all the properties referenced from a specific article_id", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(res => {
+        const { articles } = res.body;
+        //console.log(articles[0], "articles");
+        expect(articles[0].article_id).to.equal(1);
+      });
+  });
+  it("GET - Responds with an object with all the properties including the comment_count key", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(res => {
+        const { articles } = res.body;
+        expect(articles[0]).to.contain.key("comment_count");
       });
   });
 });
