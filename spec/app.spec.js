@@ -58,7 +58,7 @@ describe("/api", () => {
       });
   });
 });
-describe.only("/api", () => {
+describe("/api", () => {
   beforeEach(() => {
     return connection.seed.run();
   });
@@ -94,16 +94,16 @@ describe.only("/api", () => {
       });
   });
 
-  // it.skip("GET - Responds with 404 when URL is NOT FOUND", () => {
-  //   return request(app)
-  //     .get("/api/articles/99999")
-  //     .expect(404)
-  //     .then(res => {
-  //       console.log(res);
-  //       expect(res.body.msg).to.equal("Not-Found");
-  //     });
-  // });
-  it("PATCH - returns a new object with the key of inc_vote which has the value of votes that either need to be incremented of decremented", () => {
+  it("GET - Responds with 404 when URL is NOT FOUND", () => {
+    return request(app)
+      .get("/api/articles/99999")
+      .expect(404)
+      .then(res => {
+        console.log(res);
+        expect(res.body.msg).to.equal("Not-Found");
+      });
+  });
+  it("PATCH - returns a new object with the key of inc_vote which has a plus value of votes that either need to be incremented of decremented", () => {
     return request(app)
       .patch("/api/articles/1")
       .expect(200)
@@ -112,5 +112,41 @@ describe.only("/api", () => {
         //console.log(res.body, "specfile");
         expect(res.body).to.contain.key("article");
       });
+  });
+  it("PATCH - returns a new object with the key of inc_vote which has a negative value of votes that either need to be incremented of decremented", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .expect(200)
+      .send({ inc_vote: -120 })
+      .then(res => {
+        console.log(res.body.article[0].votes, "specfile");
+        expect(res.body).to.contain.key("article");
+      });
+  });
+  it("returns status 204 for no inc_votes on the body", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .expect(204)
+      .send({})
+      .then(res => {
+        console.log(res.body, "REEESSS");
+        expect(res.body).to.have.key("inc_vote");
+        expect(res.body.article[0].votes).to.be.a("number");
+        //expect(res.body.article)to.be.an('object')
+        //miss spelling
+        // empty {}
+      });
+  });
+  describe.only("/api/articles/", () => {
+    it("POST - When given an object with the keys of username and body it will input this into the articles table", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .expect(201)
+        .send({ username: "Jonny", body: "Hi GUYS" })
+        .then(res => {
+          console.log(res, "specFile");
+          expect(res.body).to.equal("mdffdn");
+        });
+    });
   });
 });
