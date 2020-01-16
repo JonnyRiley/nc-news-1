@@ -5,7 +5,7 @@ const chai = require("chai");
 const chaiSorted = require("chai-sorted");
 const { expect } = chai;
 const connection = require("../db/connection");
-console.log(connection);
+//console.log(connection);
 
 // chai.use(chaiSorted);
 chai.use(require("sams-chai-sorted"));
@@ -105,11 +105,12 @@ describe.only("/api", () => {
   // });
   it("PATCH - returns a new object with the key of inc_vote which has the value of votes that either need to be incremented of decremented", () => {
     return request(app)
-      .patch("/api/articles/rogersop")
+      .patch("/api/articles/1")
       .expect(200)
+      .send({ inc_vote: 12 })
       .then(res => {
-        const { articles } = res.body;
-        expect(articles[0]).to.contain.key("inc_vote");
+        //console.log(res.body, "specfile");
+        expect(res.body).to.contain.key("article");
       });
   });
 });

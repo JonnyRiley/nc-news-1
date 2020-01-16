@@ -28,3 +28,23 @@ exports.selectArticles = article_id => {
       }
     });
 };
+
+exports.selectVotes = (article_id, inc_votes) => {
+  console.log(inc_votes, "im in the votes models");
+
+  return (
+    connection("articles")
+      .select("*")
+      // .from("articles")
+      .where("articles.article_id", "=", article_id)
+      .increment("votes", inc_votes)
+      .returning("*")
+      .then(res => {
+        console.log(res, "MO");
+
+        res.votes = res.votes += inc_votes;
+        console.log(res, "Models");
+        return res;
+      })
+  );
+};
