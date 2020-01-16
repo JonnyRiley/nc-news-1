@@ -5,6 +5,7 @@ const chai = require("chai");
 const chaiSorted = require("chai-sorted");
 const { expect } = chai;
 const connection = require("../db/connection");
+console.log(connection);
 
 // chai.use(chaiSorted);
 chai.use(require("sams-chai-sorted"));
@@ -43,7 +44,7 @@ describe("/api", () => {
       .expect(200)
       .then(res => {
         const { users } = res.body;
-        //console.log(res.body);
+        console.log(res.body);
         expect(users[0].username).to.equal("rogersop");
       });
   });
@@ -53,7 +54,7 @@ describe("/api", () => {
       .expect(400)
       .then(res => {
         //console.log(res.body);
-        expect(res.body.msg).to.equal("Invalid column provided to username");
+        expect(res.body.msg).to.equal("Bad Request - Invalid column provided");
       });
   });
 });
@@ -81,6 +82,34 @@ describe.only("/api", () => {
       .then(res => {
         const { articles } = res.body;
         expect(articles[0]).to.contain.key("comment_count");
+      });
+  });
+  it("returns status 400 for invalid username column", () => {
+    return request(app)
+      .get("/api/articles/dog")
+      .expect(400)
+      .then(res => {
+        //console.log(res);
+        expect(res.body.msg).to.equal("Bad Request - Invalid column provided");
+      });
+  });
+
+  // it.skip("GET - Responds with 404 when URL is NOT FOUND", () => {
+  //   return request(app)
+  //     .get("/api/articles/99999")
+  //     .expect(404)
+  //     .then(res => {
+  //       console.log(res);
+  //       expect(res.body.msg).to.equal("Not-Found");
+  //     });
+  // });
+  it("PATCH - returns a new object with the key of inc_vote which has the value of votes that either need to be incremented of decremented", () => {
+    return request(app)
+      .patch("/api/articles/rogersop")
+      .expect(200)
+      .then(res => {
+        const { articles } = res.body;
+        expect(articles[0]).to.contain.key("inc_vote");
       });
   });
 });

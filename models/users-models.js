@@ -9,7 +9,7 @@ exports.selectUsers = username => {
       if (res.length === 0) {
         return Promise.reject({
           status: 400,
-          msg: "Invalid column provided to username"
+          msg: "Bad Request - Invalid column provided"
         });
       } else {
         return res;

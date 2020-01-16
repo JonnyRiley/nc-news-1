@@ -16,10 +16,13 @@ exports.selectArticles = article_id => {
     })
     .then(res => {
       if (res.length === 0) {
-        return Promise.reject({
-          status: 400,
-          msg: "Invalid column provided to article_id"
-        });
+        return Promise.reject(
+          {
+            status: 400,
+            msg: "Bad Request - Invalid column provided"
+          },
+          { status: 404, msg: "Not-Found" }
+        );
       } else {
         return res;
       }
