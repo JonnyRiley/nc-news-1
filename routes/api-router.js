@@ -6,7 +6,4 @@ apiRouter.use("/topics", topicsRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/articles", articlesRouter);
 
-// apiRouter.all("/*", (err, req, res, next) => {
-//   next({ err:404 "Not Found" });
-// });
 module.exports = apiRouter;

@@ -9,7 +9,7 @@ exports.formatDates = list => {
 
       newData.push(createdTime);
     });
-    // console.log(newData);
+
     return newData;
   }
 };
@@ -25,7 +25,7 @@ exports.makeRefObj = (list, key, value) => {
 exports.formatComments = (comments, articleRef) => {
   return comments.map(iteratedComment => {
     const newComments = { ...iteratedComment };
-    //console.log(newComments, "HELOOOO");
+
     const alteredObj = {
       body: newComments.body,
       article_id: articleRef[newComments.belongs_to],
@@ -34,7 +34,6 @@ exports.formatComments = (comments, articleRef) => {
       created_at: new Date(newComments.created_at)
     };
 
-    // console.log(alteredObj);
     return alteredObj;
   });
 };
