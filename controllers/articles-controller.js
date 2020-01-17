@@ -1,10 +1,11 @@
 const {
   selectArticles,
   selectVotes,
-  selectComments
+  selectComments,
+  sortedArticles
 } = require("../models/articles-models");
 exports.sendArticles = (request, response, next) => {
-  //console.log(request.params.article_id, "im in the controller");
+  console.log(request.body, "im in the controller");
 
   selectArticles(request.params.article_id)
     .then(articles => {
@@ -17,7 +18,7 @@ exports.sendArticles = (request, response, next) => {
 };
 
 exports.sendVotes = (request, response, next) => {
-  console.log("im in the votes controller");
+  console.log(request.body.inc_vote, "im in the votes controller");
   selectVotes(request.params.article_id, request.body.inc_vote)
     .then(article => {
       response.status(200).send({ article });
@@ -36,7 +37,19 @@ exports.postComments = (request, response, next) => {
     request.body.body
   )
     .then(comments => {
-      response.status(200).send({ comments });
+      response.status(201).send({ comments });
+    })
+    .catch(err => {
+      console.log(err);
+      next(err);
+    });
+};
+
+exports.sortArticles = (request, response, next) => {
+  console.log(request.query, "im in the controllers");
+  sortedArticles(request.query)
+    .then(sortBy => {
+      response.status(200).send({ sortBy });
     })
     .catch(err => {
       console.log(err);
