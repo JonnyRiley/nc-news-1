@@ -2,8 +2,10 @@ const {
   selectArticles,
   selectVotes,
   selectComments,
-  sortedArticles
+  sortedArticles,
+  allArticles
 } = require("../models/articles-models");
+
 exports.sendArticles = (request, response, next) => {
   selectArticles(request.params.article_id)
     .then(articles => {
@@ -49,4 +51,17 @@ exports.sortArticles = (request, response, next) => {
       console.log(err);
       next(err);
     });
+};
+
+exports.getArticles = (request, response, next) => {
+  console.log("im in controllers");
+  // console.log(request.params);
+  // allArticles(request.params);
+  // .then(sortBy => {
+  //   response.status(200).send({ sortBy });
+  // })
+  // .catch(err => {
+  //   console.log(err);
+  //   next(err);
+  // });
 };

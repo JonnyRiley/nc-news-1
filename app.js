@@ -1,13 +1,9 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routes/api-router");
-const {
-  psqlErrors,
-  customErrors,
-  serverErrors,
-  send405Error
-} = require("./errors/index");
+const { psqlErrors, customErrors, serverErrors } = require("./errors/index");
 app.use(express.json());
+console.log("in app");
 app.use("/api", apiRouter);
 
 app.all("/*", (req, res, next) => {

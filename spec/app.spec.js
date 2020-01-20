@@ -292,4 +292,18 @@ describe("/api", () => {
       return Promise.all(methodPromises);
     });
   });
+  // it.only("Get 200 - returns an array of objects that accepts all possible queries of sortBy, order, author, topic", () => {
+  //   return (
+  //     request(app)
+  //       .get("/api/articles/2")
+  //       // ?sortBy=comment_id&&order=desc&&author=rogersop&&topic=mitch"
+  //       // )
+  //       .expect(200)
+  //       .then(res => {
+  //         //console.log(res.body);
+  //         expect(res.body.articles).to.be.a("object");
+  //         expect(res.body.articles[0]).to.contain.key("comment_count");
+  //       })
+  //   );
+  // });
 });

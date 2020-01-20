@@ -80,3 +80,43 @@ exports.sortedArticles = query => {
         } else return res;
       });
 };
+
+exports.allArticles = query => {
+  console.log(query, "Im in the models");
+  // return (
+  //   connection("articles")
+  //     .select(
+  //       "articles.author",
+  //       "articles.title",
+  //       "articles.article_id",
+  //       "articles.topic",
+  //       "articles.created_at",
+  //       "articles.votes"
+  //       // "articles.comment_count"
+  //     )
+  //     // .from("articles")
+  //     .count({ comment_count: "comments.comment_id" })
+  //     .leftJoin("comments", "articles.article_id", "comments.article_id")
+  //     .groupBy("articles.article_id")
+  //     .where("articles.article_id", "=", article_id)
+  //     .then(res => {
+  //       console.log(res);
+  //       return res;
+  //     })
+  // );
+
+  // .orderBy(query.sortBy || "created_at", query.order || "desc")
+  // .modify(function(currentQuery) {
+  //   console.log(currentQuery);
+  //   if (query.topic) {
+  //     currentQuery.where("articles.topic", "=", query.topic);
+  //   }
+  //   if (query.author) {
+  //     currentQuery.where("articles.author", "=", query.author);
+  //   }
+  // })
+  // .then(articles => {
+  //   console.log(articles);
+  //   return articles;
+  // });
+};

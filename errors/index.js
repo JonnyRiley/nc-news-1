@@ -5,7 +5,7 @@ exports.customErrors = (err, req, res, next) => {
 };
 
 exports.psqlErrors = (err, req, res, next) => {
-  const psql = ["42703", "22P02", "23505", "42601"];
+  const psql = ["42703", "22P02", "23505", "42601", "42803"];
 
   if (psql.includes(err.code)) {
     res.status(400).send({ msg: "Bad Request" });
