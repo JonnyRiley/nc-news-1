@@ -22,7 +22,21 @@ describe("/api", () => {
           .get("/api/topics")
           .expect(200)
           .then(res => {
+            //console.log(res.body);
+            expect(res.body).to.have.key("topics");
             expect(res.status).to.equal(200);
+          });
+      });
+    });
+    describe("/users", () => {
+      it.only("GET - Responds with an object with the properties username, avatar_url, name", () => {
+        return request(app)
+          .get("/api/users/rogersop")
+          .expect(200)
+          .then(res => {
+            const { users } = res.body;
+            console.log(users);
+            expect(users[0].username).to.equal("rogersop");
           });
       });
     });
