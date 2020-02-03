@@ -1,4 +1,5 @@
 exports.formatDates = list => {
+  console.log(list);
   if (list.length === 0) {
     return list;
   } else {
@@ -6,10 +7,8 @@ exports.formatDates = list => {
     list.forEach(time => {
       const createdTime = { ...time };
       createdTime.created_at = new Date(createdTime.created_at);
-
       newData.push(createdTime);
     });
-
     return newData;
   }
 };
