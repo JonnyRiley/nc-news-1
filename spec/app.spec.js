@@ -67,7 +67,7 @@ describe("/api", () => {
           });
       });
     });
-    describe.only("/articles", () => {
+    describe("/articles", () => {
       it("GET - Responds with a staus 200 for getting all articles ", () => {
         return request(app)
           .get("/api/articles")
@@ -96,6 +96,54 @@ describe("/api", () => {
             });
         });
         return Promise.all(methodPromises);
+      });
+    });
+    describe("/articles/:article_id", () => {
+      it("GET - Responds with an object with all the properties referenced from a specific article_id", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(res => {
+            const { articles } = res.body;
+            console.log(articles, "RESSS");
+            expect(articles[0].article_id).to.equal(1);
+            expect(res.body).to.have.key("articles");
+          });
+      });
+      it("GET - Responds with an object with all the properties referenced from a specific article_id", () => {
+        return request(app)
+          .get("/api/articles/2")
+          .expect(200)
+          .then(res => {
+            console.log(res.body.articles[0], "SPECRESS");
+            expect(res.body.articles[0].votes).to.equal(0);
+          });
+      });
+      it("GET - Responds with an object with all the properties referenced from a specific article_id", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(res => {
+            console.log(res.body, "SPECRESS");
+            expect(res.body.articles[0].comment_count).to.eql("13");
+          });
+      });
+      it("Error 400 - returns status 400 for invalid column provided", () => {
+        return request(app)
+          .get("/api/articles/dog")
+          .expect(400)
+          .then(res => {
+            expect(res.status).to.equal(400);
+          });
+      });
+
+      it("Error 404 - Responds with 404 when URL is NOT FOUND", () => {
+        return request(app)
+          .get("/api/articles/99999")
+          .expect(404)
+          .then(res => {
+            expect(res.body.msg).to.equal("Not-Found");
+          });
       });
     });
   });

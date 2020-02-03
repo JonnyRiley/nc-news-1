@@ -3,7 +3,7 @@ exports.up = function(knex) {
     articles_table.increments("article_id").primary();
     articles_table.string("title").notNullable();
     articles_table.text("body").notNullable();
-    articles_table.integer("votes").defaultTo();
+    articles_table.integer("votes").defaultTo(0);
     articles_table.string("topic").references("topics.slug");
     articles_table.string("author").notNullable();
     articles_table.timestamp("created_at").notNullable();
