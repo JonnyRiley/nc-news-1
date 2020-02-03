@@ -9,12 +9,12 @@ describe("formatDates", () => {
   it("Takes an empty array and returns an empty array!", () => {
     expect(formatDates([])).to.eql([]);
   });
-  it("Takes an array of multiple objects and returns a new array!", () => {
+  it("Takes an array of an object containing the created_at key and returns a new array with the correct format!", () => {
     const expectedDate = [{ created_at: 1164458163389 }];
     const resultDate = [{ created_at: new Date(1164458163389) }];
     expect(formatDates(expectedDate)).to.eql(resultDate);
   });
-  it("Takes multipe objects within an array and returns a new array", () => {
+  it("Takes multiple objects within an array and returns a new array in the correct format", () => {
     const expectedDate = [
       {
         body:
@@ -31,21 +31,6 @@ describe("formatDates", () => {
         created_by: "butter_bridge",
         votes: 14,
         created_at: 1479818163389
-      },
-      {
-        body:
-          "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
-        belongs_to: "Living in the shadow of a great man",
-        created_by: "icellusedkars",
-        votes: 100,
-        created_at: 1448282163389
-      },
-      {
-        body: " I carry a log — yes. Is it funny to you? It is not to me.",
-        belongs_to: "Living in the shadow of a great man",
-        created_by: "icellusedkars",
-        votes: -100,
-        created_at: 1416746163389
       }
     ];
     const resultDate = [
@@ -64,26 +49,11 @@ describe("formatDates", () => {
         created_by: "butter_bridge",
         votes: 14,
         created_at: new Date(1479818163389)
-      },
-      {
-        body:
-          "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
-        belongs_to: "Living in the shadow of a great man",
-        created_by: "icellusedkars",
-        votes: 100,
-        created_at: new Date(1448282163389)
-      },
-      {
-        body: " I carry a log — yes. Is it funny to you? It is not to me.",
-        belongs_to: "Living in the shadow of a great man",
-        created_by: "icellusedkars",
-        votes: -100,
-        created_at: new Date(1416746163389)
       }
     ];
     expect(formatDates(expectedDate)).to.deep.equal(resultDate);
   });
-  it("Doesnt mutate a given array when given an array", () => {
+  it("Does not mutate any given data input into the function", () => {
     const input = [
       {
         body: " I carry a log — yes. Is it funny to you? It is not to me.",
@@ -110,11 +80,11 @@ describe("makeRefObj", () => {
   it("Returns an empty object when given an empty array", () => {
     expect(makeRefObj([])).to.deep.equal({});
   });
-  it("When given 1 article_id, it will produce a ref obj with one key and one value", () => {
+  it("When given 1 article_id, it will produce a reference obj with one key and one value", () => {
     const input = [{ article_id: 1, title: "A" }];
     expect(makeRefObj(input, "title", "article_id")).to.deep.equal({ A: 1 });
   });
-  it("When given multiple article_id values, it will produce a ref obj with more than one key and one value", () => {
+  it("When given multiple article_id values, it will produce a reference obj with more than one key and one value", () => {
     const input = [
       { article_id: "A", title: 1 },
       { article_id: "B", title: 2 }
@@ -138,7 +108,7 @@ describe("makeRefObj", () => {
   });
 });
 
-describe.only("formatComments", () => {
+describe("formatComments", () => {
   it("Returns a new array object when given an array of on object", () => {
     expect(formatComments([], {})).to.deep.equal([]);
   });
@@ -169,7 +139,7 @@ describe.only("formatComments", () => {
     ];
     expect(formatComments(input, articleRef)).to.eql(output);
   });
-  it("Returns a new array of multilpe objects that have been renamed and reassigned the new keys and values corresponding to the README", () => {
+  it("Returns a new array of multiple objects that have been renamed and reassigned the new keys and values corresponding to the README", () => {
     const articleRef = {
       "They're not exactly dogs, are they?": 1,
       "Living in the shadow of a great man": 2
@@ -213,7 +183,7 @@ describe.only("formatComments", () => {
     ];
     expect(formatComments(input, articleRef)).to.eql(output);
   });
-  it("Does not mutate the input the data", () => {
+  it("Does not mutate the data that has benn input into the function", () => {
     const input = [
       { article_id: "A", title: 1 },
       { article_id: "B", title: 2 }

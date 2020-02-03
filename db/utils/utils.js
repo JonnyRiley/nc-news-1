@@ -1,5 +1,4 @@
 exports.formatDates = list => {
-  console.log(list);
   if (list.length === 0) {
     return list;
   } else {
