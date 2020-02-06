@@ -139,7 +139,7 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
 };
 
 exports.getAllArticles = (sort_by, order, author, topic) => {
-  const { checkAuthorExists } = module.exports;
+  //const { checkAuthorExists } = module.exports;
   console.log(author, "In models");
   return (
     connection("articles")
@@ -167,34 +167,35 @@ exports.getAllArticles = (sort_by, order, author, topic) => {
       })
       // CANNOT GET INTO HERE , EVERYTHING SEEMS TO BE WORKING UNTIL NOW
       .then(res => {
-        console.log(res);
-        return Promise.all([checkAuthorExists(author), res]).then(result => {
-          console.log(result, "RES HERE");
-          if (result.length === 0) {
-            return result;
-          } else
-            return Promise.reject({
-              status: 404,
-              msg: "Value for column does not exist"
-            });
-        });
+        console.log(res, "first RES");
+        return Promise.all([res, checkAuthorExists(author)]);
+      })
+      .then(([res, checkAuthorExists]) => {
+        console.log(checkAuthorExists, "RES HERE");
+        if (checkAuthorExists) {
+          return res;
+        } else
+          return Promise.reject({
+            status: 404,
+            msg: "Value for column does not exist"
+          });
       })
   );
 };
 
-exports.checkAuthorExists = author => {
-  // console.log(author, "in checkAuthorExists");
-  if (author) {
-    return connection("articles")
-      .select("*")
-      .where("articles.author", author)
-      .then(authorRows => {
-        console.log(authorRows, "exists");
-        if (authorRows) {
-          return true;
-        } else return Promise.reject({ status: 404, msg: "Author Not Found" });
-      });
-  } else return false;
+const checkAuthorExists = author => {
+  console.log(author, "in checkAuthorExists");
+  return connection("users")
+    .select("*")
+    .from("users")
+    .where("username", author)
+    .then(authorRows => {
+      console.log(authorRows, "exists");
+      if (authorRows) return true;
+    })
+    .catch(err => {
+      console.log(err);
+    });
 };
 // exports.getAllArticles = (sort_by, order, author, topic) => {
 //   const { checkAuthorExists } = module.exports;

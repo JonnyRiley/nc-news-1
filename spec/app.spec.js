@@ -539,7 +539,7 @@ describe("/api", () => {
           .get("/api/articles?author=lurker")
           .expect(200)
           .then(res => {
-            // console.log(res.body, "HERE");
+            console.log(res.body, "HERE");
             expect(res.body.articles).to.be.sortedBy("author", {
               descending: true
             });
