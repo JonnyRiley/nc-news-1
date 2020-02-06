@@ -1,4 +1,5 @@
 const connection = require("../db/connection");
+const { selectTopics } = require("../models/topics_models");
 
 exports.selectArticles = () => {
   console.log("in models");
@@ -137,70 +138,117 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
       });
   } else return Promise.reject({ status: 400, msg: "Bad Request" });
 };
-
-exports.getAllArticles = (sort_by, order, author, topic) => {
-  //const { checkAuthorExists } = module.exports;
-  console.log(author, "In models");
-  return (
-    connection("articles")
-      .select(
-        "articles.author",
-        "articles.title",
-        "articles.article_id",
-        "articles.topic",
-        "articles.created_at",
-        "articles.votes"
-      )
-      .count({ comment_count: "comments.comment_id" })
-      .leftJoin("comments", "articles.article_id", "comments.article_id")
-      .groupBy("articles.article_id")
-      .orderBy(sort_by || "created_at", order || "desc")
-      .modify(query => {
-        // console.log(author === true);
-
-        if (author) {
-          query.where("articles.author", author);
-        }
-        if (topic) {
-          query.where("articles.topic", topic);
-        }
-      })
-      // CANNOT GET INTO HERE , EVERYTHING SEEMS TO BE WORKING UNTIL NOW
-      .then(res => {
-        console.log(res, "first RES");
-        return Promise.all([res, checkAuthorExists(author)]);
-      })
-      .then(([res, checkAuthorExists]) => {
-        console.log(checkAuthorExists, "RES HERE");
-        if (checkAuthorExists) {
-          return res;
-        } else
-          return Promise.reject({
-            status: 404,
-            msg: "Value for column does not exist"
-          });
-      })
-  );
-};
-
 const checkAuthorExists = author => {
   console.log(author, "in checkAuthorExists");
-  return connection("users")
-    .select("*")
-    .from("users")
-    .where("username", author)
-    .then(authorRows => {
-      console.log(authorRows, "exists");
-      if (authorRows) return true;
+  if (author) {
+    return connection("users")
+      .select("*")
+      .from("users")
+      .where("username", "=", author)
+      .then(authorRows => {
+        console.log(authorRows, "exists");
+        if (authorRows.length === 0) {
+          return Promise.reject({ status: 404, msg: "Bad Request" });
+        } else return authorRows;
+      });
+  } else return false;
+};
+const topicExists = topic => {
+  if (topic) {
+    return connection("topics")
+      .returning("*")
+      .modify(query => {
+        query.where("slug", topic);
+      })
+      .then(allTopics => {
+        return allTopics;
+      })
+      .then(topicRows => {
+        console.log(topicRows, "ELSE");
+        if (topicRows.length === 0) {
+          return Promise.reject({ status: 404, msg: "Bad Request" });
+        } else return topicRows;
+      });
+  } else return false;
+};
+
+exports.getAllArticles = (
+  sort_by,
+  order,
+  author = undefined,
+  topic = undefined
+) => {
+  //const { checkAuthorExists } = module.exports;
+  console.log(topic, "In models");
+  return connection("articles")
+    .select(
+      "articles.author",
+      "articles.title",
+      "articles.article_id",
+      "articles.topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .count({ comment_count: "comments.comment_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .orderBy(sort_by || "created_at", order || "desc")
+    .modify(query => {
+      console.log(author);
+      if (author) {
+        query.where("articles.author", author);
+      }
+      if (topic) {
+        query.where("articles.topic", topic);
+      }
     })
-    .catch(err => {
-      console.log(err);
+    .then(res => {
+      console.log(res, "RES");
+      const authorExists = checkAuthorExists(author);
+      const topicExistsNew = topicExists(topic);
+      return Promise.all([res, authorExists, topicExistsNew]);
+    })
+    .then(([res, authorExists, topicExistsNew]) => {
+      console.log(authorExists, topicExistsNew, "in then");
+      if (authorExists) {
+        return res;
+      }
+      if (topicExistsNew) {
+        return res;
+      }
+      return res;
+    })
+    .then(result => {
+      console.log(result);
+      if (result) {
+        return result;
+      } else {
+        return Promise.reject({
+          status: 404,
+          msg: "Value for column does not exist"
+        });
+      }
     });
 };
-// exports.getAllArticles = (sort_by, order, author, topic) => {
-//   const { checkAuthorExists } = module.exports;
-//   console.log(sort_by, order, author, topic, "In models");
 
+// const topicExists = topic => {
+//   if (topics)
+//     return connection("topics")
+//       .returning("*")
+//       .modify(query => {
+//         query.where("slug", topics);
+//       })
+//       .then(allTopics => {
+//         return allTopics;
+//       })
+//       .then(topicRows => {
+//         console.log(topicRows, "ELSE");
+//         if (topicRows.length === 0) {
+//           return Promise.reject({ status: 404, msg: "Bad Request" });
+//         } else return topicRows;
+//       });
+// };
+// } else if (topic) {
 //   return connection("articles")
 //     .select(
 //       "articles.author",
@@ -211,27 +259,24 @@ const checkAuthorExists = author => {
 //       "articles.votes"
 //     )
 //     .count({ comment_count: "comments.comment_id" })
-//     .leftJoin("users", "articles.author", "users.username")
-//     .groupBy("articles.author")
 //     .leftJoin("comments", "articles.article_id", "comments.article_id")
 //     .groupBy("articles.article_id")
 //     .orderBy(sort_by || "created_at", order || "desc")
-//     .modify(function(currentQuery) {
-//       console.log("hello");
-//       if (topic) {
-//         currentQuery.where("articles.topic", "=", topic);
-//       }
+//     .modify(query => {
 //       if (author) {
-//         currentQuery.where("articles.author", "=", author);
+//         query.where("articles.author", author);
+//       }
+//       if (topic) {
+//         query.where("articles.topic", topic);
 //       }
 //     })
 //     .then(res => {
-//       console.log(res, "models");
-//       return Promise.all([checkAuthorExists(author), res]);
+//       const topicExists = selectTopics(topic);
+//       return Promise.all([topicExists, res]);
 //     })
-//     .then(([res, checkAuthorExists]) => {
-//       console.log(res, "RES HERE");
-//       if (checkAuthorExists) {
+//     .then(([topicExists, res]) => {
+//       console.log(topicExists, "in then");
+//       if (topicExists) {
 //         return res;
 //       } else
 //         return Promise.reject({
@@ -239,51 +284,40 @@ const checkAuthorExists = author => {
 //           msg: "Value for column does not exist"
 //         });
 //     });
+// }
+//   } else
+//     return connection("articles")
+//       .select(
+//         "articles.author",
+//         "articles.title",
+//         "articles.article_id",
+//         "articles.topic",
+//         "articles.created_at",
+//         "articles.votes"
+//       )
+//       .count({ comment_count: "comments.comment_id" })
+//       .leftJoin("comments", "articles.article_id", "comments.article_id")
+//       .groupBy("articles.article_id")
+//       .orderBy(sort_by || "created_at", order || "desc")
+//       .then(res => {
+//         console.log(res, "res");
+//         if (res.length === 0) {
+//           return Promise.reject({ status: 404, msg: "Bad Request" });
+//         } else return res;
+//       });
 // };
 
-// exports.getAllArticles = (sort_by, order, author, topic) => {
-//   const { checkAuthorExists } = module.exports;
-//   console.log(sort_by, order, author, topic, "In models");
-//   return checkAuthorExists(author).then(authorExists => {
-//     console.log(authorExists, "authorExists");
-//     return (
-//       connection("articles")
-//         .select(
-//           "articles.author",
-//           "articles.title",
-//           "articles.article_id",
-//           "articles.topic",
-//           "articles.created_at",
-//           "articles.votes"
-//         )
-//         .count({ comment_count: "comments.comment_id" })
-//         .leftJoin("users", "articles.author", "users.username")
-//         .groupBy("articles.author")
-//         .leftJoin("comments", "articles.article_id", "comments.article_id")
-//         .groupBy("articles.article_id")
-//         .orderBy(sort_by || "created_at", order || "desc")
-//         .modify(function(currentQuery) {
-//           console.log(authorExists, "hello");
-//           if (authorExists) {
-//             currentQuery.where("articles.author", "=", author);
-//           }
-//           if (topic) {
-//             currentQuery.where("articles.topic", "=", topic);
-//           }
-//         })
-//         // CANNOT GET INTO HERE , EVERYTHING SEEMS TO BE WORKING UNTIL NOW
-//         .then(res => {
-//           return Promise.all([authorExists, res]).then(result => {
-//             console.log(result, "RES HERE");
-//             if (result.length === 0) {
-//               return result;
-//             } else
-//               return Promise.reject({
-//                 status: 404,
-//                 msg: "Value for column does not exist"
-//               });
-//           });
-//         })
-//     );
-//   });
+// const checkAuthorExists = author => {
+//   console.log(author, "in checkAuthorExists");
+
+//   return connection("users")
+//     .select("*")
+//     .from("users")
+//     .where("username", "=", author)
+//     .then(authorRows => {
+//       console.log(authorRows, "exists");
+//       if (authorRows.length === 0) {
+//         return Promise.reject({ status: 404, msg: "Bad Request" });
+//       } else return authorRows;
+//     });
 // };

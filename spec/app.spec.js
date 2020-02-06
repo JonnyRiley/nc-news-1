@@ -68,15 +68,15 @@ describe("/api", () => {
       });
     });
     describe("/articles", () => {
-      it("GET - Responds with a staus 200 for getting all articles ", () => {
-        return request(app)
-          .get("/api/articles")
-          .expect(200)
-          .then(res => {
-            console.log(res.body);
-            expect(res.body).to.have.key("articles");
-          });
-      });
+      // it("GET - Responds with a staus 200 for getting all articles ", () => {
+      //   return request(app)
+      //     .get("/api/articles")
+      //     .expect(200)
+      //     .then(res => {
+      //       console.log(res.body);
+      //       expect(res.body).to.have.key("articles");
+      //     });
+      // });
       it("Error 405 - Responds with an object with all the properties referenced from a specific article_id", () => {
         return request(app)
           .get("/api/articl")
@@ -478,7 +478,7 @@ describe("/api", () => {
           });
       });
       it("GET - Returns an array of all articles that has been sorted by topic", () => {
-        request(app)
+        return request(app)
           .get("/api/articles?sort_by=topic")
           .expect(200)
           .then(res => {
@@ -489,7 +489,7 @@ describe("/api", () => {
           });
       });
       it("GET - Returns an array of all articles that has been sorted by author", () => {
-        request(app)
+        return request(app)
           .get("/api/articles?sort_by=author&&order=asc")
           .expect(200)
           .then(res => {
@@ -500,7 +500,7 @@ describe("/api", () => {
           });
       });
       it("GET - Returns an array of all articles that has been organised in ascending order", () => {
-        request(app)
+        return request(app)
           .get("/api/articles?order=asc")
           .expect(200)
           .then(res => {
@@ -511,7 +511,7 @@ describe("/api", () => {
           });
       });
       it("GET - Returns an array of all articles that has been queried by the author name butter_bridge", () => {
-        request(app)
+        return request(app)
           .get("/api/articles?author=butter_bridge")
           .expect(200)
           .then(res => {
@@ -523,7 +523,7 @@ describe("/api", () => {
           });
       });
       it("GET - Returns an array of all articles that has been queried by the author name butter_bridge", () => {
-        request(app)
+        return request(app)
           .get("/api/articles?topic=mitch")
           .expect(200)
           .then(res => {
@@ -534,41 +534,74 @@ describe("/api", () => {
             expect(res.body.articles[0].topic).to.eql("mitch");
           });
       });
-      it.only("GET - Returns an array of all articles that has been queried by the author name lurker", () => {
-        request(app)
+      it("GET - Returns an array of all articles that has been queried by the author name lurker", () => {
+        return request(app)
           .get("/api/articles?author=lurker")
           .expect(200)
           .then(res => {
             console.log(res.body, "HERE");
-            expect(res.body.articles).to.be.sortedBy("author", {
-              descending: true
-            });
-            expect(res.body.articles).to.eql("lurker");
+            expect(res.body.articles).to.eql([]);
           });
       });
-      it("GET - Returns an array of all articles that has been queried by the author name paper", () => {
-        request(app)
-          .get("/api/articles?author=paper")
+      it("GET - Returns an array of all articles that has been queried by the topic name paper", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
           .expect(200)
           .then(res => {
-            //console.log(res.body);
-            expect(res.body.articles).to.be.sortedBy("author", {
+            console.log(res.body);
+            expect(res.body.articles).to.be.sortedBy({
               descending: true
             });
-            expect(res.body.articles[0].author).to.eql("paper");
+            expect(res.body.articles).to.eql([]);
           });
       });
-      // it.only("GET - Returns an array of all articles that has been queried by the topic name not-a-topic ", () => {
-      //   request(app)
+      // it.only("ERROR 404 - Returns a 404 when given the topic name not-a-topic ", () => {
+      //   return request(app)
       //     .get("/api/articles?topic=not-a-topic")
       //     .expect(404)
       //     .then(res => {
       //       //console.log(res.body);
-      //       expect(res.body.articles).to.be.sortedBy("topic", {
-      //         descending: true
-      //       });
+      //       expect(res.body.msg).to.be.equal({msg:Bad Request}
+      //     });
+      // });
+      it("ERROR 404 - Returns a 404 when given the author name not-an-author ", () => {
+        return request(app)
+          .get("/api/articles?author=not-an-author")
+          .expect(404)
+          .then(res => {
+            console.log(res.body);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
+      // it.only("ERROR 400 - Returns a 400 when given a sort_by criteria that is not-a-collumn ", () => {
+      //   return request(app)
+      //     .get("api/articles?sort_by=not-a-column")
+      //     .expect(400)
+      //     .then(res => {
+      //       //console.log(res.body);
+      //       expect(res.body.msg).to.be.sortedBy({"Not Found"})
+      //     });
+      // });
+      // it.only("ERROR 400 - Returns a 400 when given a order criteria that is not-a-collumn ", () => {
+      //   return request(app)
+      //     .get("api/articles?order=not-asc-or-desc")
+      //     .expect(400)
+      //     .then(res => {
+      //       //console.log(res.body);
+      //       expect(res.body.msg).to.be.sortedBy({"Not Found"})
       //     });
       // });
     });
+    // describe("/comments/:comment_id", () => {
+    //   it("PATCH - Returns a inserted array with the values that have been inserted into the comments", () => {
+    //     return request(app)
+    //       .patch("/api/comments/:comment_id")
+    //       .expect(201)
+    //       .then(res => {
+    //         console.log(res.body);
+    //         expect(res.body).to.equal({ msg: "no idea" });
+    //       });
+    //   });
+    // });
   });
 });
