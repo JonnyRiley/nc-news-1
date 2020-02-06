@@ -337,9 +337,9 @@ describe("/api", () => {
             });
           });
       });
-      it("GET - responds with a sort_by criteria of comment_id and orderBy critreria of descending in an array with the article_id 2", () => {
+      it("GET - responds with a sort_by criteria of comment_id and order critreria of descending in an array with the article_id 2", () => {
         return request(app)
-          .get("/api/articles/2/comments?sortBy=comment_id&&orderBy=desc")
+          .get("/api/articles/2/comments?sort_by=comment_id&&order=desc")
           .expect(200)
           .then(res => {
             console.log(res.body);
@@ -349,9 +349,9 @@ describe("/api", () => {
             expect(res.body.comments).to.be.an("array");
           });
       });
-      it("GET - responds with a sort_by criteria of author and orderBy criteria of ascending in an array with the article_id 2", () => {
+      it("GET - responds with a sort_by criteria of author and order criteria of ascending in an array with the article_id 2", () => {
         return request(app)
-          .get("/api/articles/2/comments?sortBy=author&&orderBy=asc")
+          .get("/api/articles/2/comments?sort_by=author&&order=asc")
           .expect(200)
           .then(res => {
             console.log(res.body.comments);
@@ -362,7 +362,7 @@ describe("/api", () => {
       });
       it("GET - responds with a sorted by object from the created_at key in the array in default order of descending", () => {
         return request(app)
-          .get("/api/articles/2/comments?sortBy=created_at")
+          .get("/api/articles/2/comments?sort_by=created_at")
           .expect(200)
           .then(res => {
             console.log(res.body.comments);
@@ -373,7 +373,7 @@ describe("/api", () => {
       });
       it("GET - responds with a ordered array when given the ascending order in an array", () => {
         return request(app)
-          .get("/api/articles/2/comments?sortBy=votes")
+          .get("/api/articles/2/comments?sort_by=votes")
           .expect(200)
           .then(res => {
             console.log(res.body.comments);
@@ -384,7 +384,7 @@ describe("/api", () => {
       });
       it("GET - responds with a ordered array when given the ascending order in an array", () => {
         return request(app)
-          .get("/api/articles/2/comments?orderBy=asc")
+          .get("/api/articles/2/comments?order=asc")
           .expect(200)
           .then(res => {
             console.log(res.body.comments);
@@ -402,25 +402,25 @@ describe("/api", () => {
             expect(res.body.msg).to.equal("Value for column does not exist");
           });
       });
-      it.only("GET - Returns a defaulted order when given an invalid order criteria", () => {
+      it("GET - Returns a defaulted order when given an invalid order criteria", () => {
         return request(app)
-          .get("/api/articles/1/comments?orderBy=notanOrder")
+          .get("/api/articles/1/comments?order=notanOrder")
           .expect(400)
           .then(res => {
             console.log(res.body);
             expect(res.body.msg).to.equal("Bad Request");
           });
       });
-      it.only("GET - Returns a defaulted sorted by when given an invalid sortBy criteria", () => {
+      it("GET - Returns a defaulted sorted by when given an invalid sort_by criteria", () => {
         return request(app)
-          .get("/api/articles/1/comments?sortBy=notASortBy")
+          .get("/api/articles/1/comments?sort_by=notAsort_by")
           .expect(400)
           .then(res => {
             console.log(res.body);
             expect(res.body.msg).to.equal("Bad Request");
           });
       });
-      it.only("Error 405 -Status:405", () => {
+      it("Error 405 -Status:405", () => {
         const invalidMethods = ["patch", "put", "delete"];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
@@ -433,11 +433,11 @@ describe("/api", () => {
         });
         return Promise.all(methodPromises);
       });
-      it.only("Error 405 - Status:405", () => {
+      it("Error 405 - Status:405", () => {
         const invalidMethods = ["patch", "put", "delete"];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
-            .delete("/api/articles/2/comments?sortBy=comment_id")
+            .delete("/api/articles/2/comments?sort_by=comment_id")
             .expect(405)
             .then(res => {
               expect(res.body.msg).to.equal("Method not allowed");
@@ -445,11 +445,11 @@ describe("/api", () => {
         });
         return Promise.all(methodPromises);
       });
-      it.only("Error 405 - Status:405", () => {
+      it("Error 405 - Status:405", () => {
         const invalidMethods = ["patch", "put", "delete"];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
-            .patch("/api/articles/2/comments?sortBy=comment_id")
+            .patch("/api/articles/2/comments?sort_by=comment_id")
             .expect(405)
             .then(res => {
               expect(res.body.msg).to.equal("Method not allowed");
@@ -457,6 +457,118 @@ describe("/api", () => {
         });
         return Promise.all(methodPromises);
       });
+    });
+    describe("/articles", () => {
+      it("GET - Returns an array of all articles objects with all the key author, title, article_id, topic, created_at, votes, comment_count", () => {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(res => {
+            console.log(res.body);
+            expect(res.body).to.have.key("articles");
+            expect(res.body.articles[0]).to.have.key(
+              "author",
+              "title",
+              "article_id",
+              "topic",
+              "created_at",
+              "votes",
+              "comment_count"
+            );
+          });
+      });
+      it("GET - Returns an array of all articles that has been sorted by topic", () => {
+        request(app)
+          .get("/api/articles?sort_by=topic")
+          .expect(200)
+          .then(res => {
+            console.log(res.body);
+            expect(res.body.articles).to.be.sortedBy("topic", {
+              descending: true
+            });
+          });
+      });
+      it("GET - Returns an array of all articles that has been sorted by author", () => {
+        request(app)
+          .get("/api/articles?sort_by=author&&order=asc")
+          .expect(200)
+          .then(res => {
+            console.log(res.body.articles, "specfile");
+            expect(res.body.articles).to.be.sortedBy("author", {
+              descending: false
+            });
+          });
+      });
+      it("GET - Returns an array of all articles that has been organised in ascending order", () => {
+        request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(res => {
+            console.log(res.body);
+            expect(res.body.articles).to.be.sortedBy("created_at", {
+              descending: false
+            });
+          });
+      });
+      it("GET - Returns an array of all articles that has been queried by the author name butter_bridge", () => {
+        request(app)
+          .get("/api/articles?author=butter_bridge")
+          .expect(200)
+          .then(res => {
+            console.log(res.body);
+            expect(res.body.articles).to.be.sortedBy("author", {
+              descending: true
+            });
+            expect(res.body.articles[0].author).to.eql("butter_bridge");
+          });
+      });
+      it("GET - Returns an array of all articles that has been queried by the author name butter_bridge", () => {
+        request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(res => {
+            console.log(res.body.articles[0].topic);
+            expect(res.body.articles).to.be.sortedBy("topic", {
+              descending: true
+            });
+            expect(res.body.articles[0].topic).to.eql("mitch");
+          });
+      });
+      it.only("GET - Returns an array of all articles that has been queried by the author name lurker", () => {
+        request(app)
+          .get("/api/articles?author=lurker")
+          .expect(200)
+          .then(res => {
+            // console.log(res.body, "HERE");
+            expect(res.body.articles).to.be.sortedBy("author", {
+              descending: true
+            });
+            expect(res.body.articles).to.eql("lurker");
+          });
+      });
+      it("GET - Returns an array of all articles that has been queried by the author name paper", () => {
+        request(app)
+          .get("/api/articles?author=paper")
+          .expect(200)
+          .then(res => {
+            //console.log(res.body);
+            expect(res.body.articles).to.be.sortedBy("author", {
+              descending: true
+            });
+            expect(res.body.articles[0].author).to.eql("paper");
+          });
+      });
+      // it.only("GET - Returns an array of all articles that has been queried by the topic name not-a-topic ", () => {
+      //   request(app)
+      //     .get("/api/articles?topic=not-a-topic")
+      //     .expect(404)
+      //     .then(res => {
+      //       //console.log(res.body);
+      //       expect(res.body.articles).to.be.sortedBy("topic", {
+      //         descending: true
+      //       });
+      //     });
+      // });
     });
   });
 });
