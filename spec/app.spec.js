@@ -247,7 +247,7 @@ describe("/api", () => {
         return Promise.all(methodPromises);
       });
     });
-    describe("/articles,:article_id/comments", () => {
+    describe("/articles/:article_id/comments", () => {
       it("POST - When given an object with the keys of username and body it will input this into the articles table", () => {
         return request(app)
           .post("/api/articles/2/comments")
@@ -555,15 +555,15 @@ describe("/api", () => {
             expect(res.body.articles).to.eql([]);
           });
       });
-      // it.only("ERROR 404 - Returns a 404 when given the topic name not-a-topic ", () => {
-      //   return request(app)
-      //     .get("/api/articles?topic=not-a-topic")
-      //     .expect(404)
-      //     .then(res => {
-      //       //console.log(res.body);
-      //       expect(res.body.msg).to.be.equal({msg:Bad Request}
-      //     });
-      // });
+      it("ERROR 404 - Returns a 404 when given the topic name not-a-topic ", () => {
+        return request(app)
+          .get("/api/articles?topic=not-a-topic")
+          .expect(404)
+          .then(res => {
+            //console.log(res.body);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
       it("ERROR 404 - Returns a 404 when given the author name not-an-author ", () => {
         return request(app)
           .get("/api/articles?author=not-an-author")
@@ -573,35 +573,52 @@ describe("/api", () => {
             expect(res.body.msg).to.equal("Bad Request");
           });
       });
-      // it.only("ERROR 400 - Returns a 400 when given a sort_by criteria that is not-a-collumn ", () => {
-      //   return request(app)
-      //     .get("api/articles?sort_by=not-a-column")
-      //     .expect(400)
-      //     .then(res => {
-      //       //console.log(res.body);
-      //       expect(res.body.msg).to.be.sortedBy({"Not Found"})
-      //     });
-      // });
-      // it.only("ERROR 400 - Returns a 400 when given a order criteria that is not-a-collumn ", () => {
-      //   return request(app)
-      //     .get("api/articles?order=not-asc-or-desc")
-      //     .expect(400)
-      //     .then(res => {
-      //       //console.log(res.body);
-      //       expect(res.body.msg).to.be.sortedBy({"Not Found"})
-      //     });
-      // });
+      it("ERROR 400 - Returns a 400 when given a sort_by criteria that is not-a-collumn ", () => {
+        return request(app)
+          .get("/api/articles?sort_by=not-a-column")
+          .expect(400)
+          .then(res => {
+            console.log(res.body);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
+      it("ERROR 400 - Returns a 400 when given a order criteria that is not-a-collumn ", () => {
+        return request(app)
+          .get("/api/articles?order=not-asc-or-desc")
+          .expect(400)
+          .then(res => {
+            //console.log(res.body);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
     });
-    // describe("/comments/:comment_id", () => {
-    //   it("PATCH - Returns a inserted array with the values that have been inserted into the comments", () => {
-    //     return request(app)
-    //       .patch("/api/comments/:comment_id")
-    //       .expect(201)
-    //       .then(res => {
-    //         console.log(res.body);
-    //         expect(res.body).to.equal({ msg: "no idea" });
-    //       });
-    //   });
-    // });
+    describe("/comments/:comment_id", () => {
+      it("PATCH - Returns an array with the value of inc_vote that have been incremented into the votes key in comments", () => {
+        return request(app)
+          .patch("/api/comments/2")
+          .expect(201)
+          .send({ inc_vote: 2 })
+          .then(res => {
+            const incrementedVotes = 16;
+            console.log(res.body);
+            expect(res.body.comment[0].comment_id).to.equal(2);
+            expect(res.body.comment[0].votes).to.equal(incrementedVotes);
+            expect(res.body).to.contain.key("comment");
+          });
+      });
+      it.only("PATCH - Returns an array with the value of inc_vote that have been decremented into the votes key in comments", () => {
+        return request(app)
+          .patch("/api/comments/2")
+          .expect(201)
+          .send({ inc_vote: -2 })
+          .then(res => {
+            const incrementedVotes = 12;
+            console.log(res.body);
+            expect(res.body.comment[0].comment_id).to.equal(2);
+            expect(res.body.comment[0].votes).to.equal(incrementedVotes);
+            expect(res.body).to.contain.key("comment");
+          });
+      });
+    });
   });
 });

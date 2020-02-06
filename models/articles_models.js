@@ -178,59 +178,71 @@ exports.getAllArticles = (
   author = undefined,
   topic = undefined
 ) => {
-  //const { checkAuthorExists } = module.exports;
-  console.log(topic, "In models");
-  return connection("articles")
-    .select(
-      "articles.author",
-      "articles.title",
-      "articles.article_id",
-      "articles.topic",
-      "articles.created_at",
-      "articles.votes"
-    )
-    .count({ comment_count: "comments.comment_id" })
-    .leftJoin("comments", "articles.article_id", "comments.article_id")
-    .groupBy("articles.article_id")
-    .orderBy(sort_by || "created_at", order || "desc")
-    .modify(query => {
-      console.log(author);
-      if (author) {
-        query.where("articles.author", author);
-      }
-      if (topic) {
-        query.where("articles.topic", topic);
-      }
-    })
-    .then(res => {
-      console.log(res, "RES");
-      const authorExists = checkAuthorExists(author);
-      const topicExistsNew = topicExists(topic);
-      return Promise.all([res, authorExists, topicExistsNew]);
-    })
-    .then(([res, authorExists, topicExistsNew]) => {
-      console.log(authorExists, topicExistsNew, "in then");
-      if (authorExists) {
+  const orderExists = ["asc", "desc", undefined];
+  const collumnExists = [
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+    undefined
+  ];
+  console.log(orderExists.includes(order) && collumnExists.includes(sort_by));
+  if (orderExists.includes(order) && collumnExists.includes(sort_by)) {
+    //const { checkAuthorExists } = module.exports;
+    console.log(topic, "In models");
+    return connection("articles")
+      .select(
+        "articles.author",
+        "articles.title",
+        "articles.article_id",
+        "articles.topic",
+        "articles.created_at",
+        "articles.votes"
+      )
+      .count({ comment_count: "comments.comment_id" })
+      .leftJoin("comments", "articles.article_id", "comments.article_id")
+      .groupBy("articles.article_id")
+      .orderBy(sort_by || "created_at", order || "desc")
+      .modify(query => {
+        console.log(author);
+        if (author) {
+          query.where("articles.author", author);
+        }
+        if (topic) {
+          query.where("articles.topic", topic);
+        }
+      })
+      .then(res => {
+        console.log(res, "RES");
+        const authorExists = checkAuthorExists(author);
+        const topicExistsNew = topicExists(topic);
+        return Promise.all([res, authorExists, topicExistsNew]);
+      })
+      .then(([res, authorExists, topicExistsNew]) => {
+        console.log(authorExists, topicExistsNew, "in then");
+        if (authorExists) {
+          return res;
+        }
+        if (topicExistsNew) {
+          return res;
+        }
         return res;
-      }
-      if (topicExistsNew) {
-        return res;
-      }
-      return res;
-    })
-    .then(result => {
-      console.log(result);
-      if (result) {
-        return result;
-      } else {
-        return Promise.reject({
-          status: 404,
-          msg: "Value for column does not exist"
-        });
-      }
-    });
+      })
+      .then(result => {
+        console.log(result);
+        if (result) {
+          return result;
+        } else {
+          return Promise.reject({
+            status: 404,
+            msg: "Value for column does not exist"
+          });
+        }
+      });
+  } else return Promise.reject({ status: 400, msg: "Bad Request" });
 };
-
 // const topicExists = topic => {
 //   if (topics)
 //     return connection("topics")
