@@ -593,11 +593,11 @@ describe("/api", () => {
       });
     });
     describe("/comments/:comment_id", () => {
-      it("PATCH - Returns an array with the value of inc_vote that have been incremented into the votes key in comments", () => {
+      it("PATCH - Returns an array with the value of inc_votes that have been incremented into the votes key in comments", () => {
         return request(app)
           .patch("/api/comments/2")
           .expect(201)
-          .send({ inc_vote: 2 })
+          .send({ inc_votes: 2 })
           .then(res => {
             const incrementedVotes = 16;
             console.log(res.body);
@@ -606,17 +606,61 @@ describe("/api", () => {
             expect(res.body).to.contain.key("comment");
           });
       });
-      it.only("PATCH - Returns an array with the value of inc_vote that have been decremented into the votes key in comments", () => {
+      it("PATCH - Returns an array with the value of inc_votes that have been decremented into the votes key in comments", () => {
         return request(app)
           .patch("/api/comments/2")
           .expect(201)
-          .send({ inc_vote: -2 })
+          .send({ inc_votes: -2 })
           .then(res => {
             const incrementedVotes = 12;
             console.log(res.body);
             expect(res.body.comment[0].comment_id).to.equal(2);
             expect(res.body.comment[0].votes).to.equal(incrementedVotes);
             expect(res.body).to.contain.key("comment");
+          });
+      });
+      it("ERROR 400 - Returns a 400 when given an invalid inc_votes values in the body", () => {
+        return request(app)
+          .patch("/api/comments/2")
+          .expect(400)
+          .send({ inc_votes: "mfji" })
+          .then(res => {
+            console.log(res.body.msg);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
+      it("ERROR 400 - Returns a 400 when given an invalid comment_id", () => {
+        return request(app)
+          .patch("/api/comments/not-valid-id")
+          .expect(400)
+          .send({ inc_votes: "mfji" })
+          .then(res => {
+            console.log(res.body.msg);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
+      it("ERROR 400 - Returns a 400 when given no body to patch", () => {
+        return request(app)
+          .patch("/api/comments/not-valid-id")
+          .expect(400)
+          .send({})
+          .then(res => {
+            console.log(res.body.msg);
+            expect(res.body.msg).to.equal("Bad Request");
+          });
+      });
+      it("DELETE - Returns an array without the deleted comment by its comment_id", () => {
+        return request(app)
+          .delete("/api/comments/1")
+          .expect(204);
+      });
+      it("ERROR 400 - Returns a 400 when given an invalid comment_id to delete", () => {
+        return request(app)
+          .delete("/api/comments/not-valid-id")
+          .expect(400)
+          .then(res => {
+            console.log(res.body.msg);
+            expect(res.body.msg).to.equal("Bad Request");
           });
       });
     });
