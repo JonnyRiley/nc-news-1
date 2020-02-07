@@ -9,8 +9,21 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users/:username": {
+    "description": "serves an array of a user with by username",
+    "queries": [],
+    "exampleResponse": {
+      "topics": [
+        {
+          "username": "icellusedkars",
+          "avtar_url": "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+          "name": "Sam"
+        }
+      ]
+    }
+  },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
+    "description": "serves an array of all articles",
     "queries": ["author", "topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
@@ -20,6 +33,102 @@
           "author": "weegembump",
           "body": "Text from the article..",
           "created_at": 1527695953341
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an array of all articles by article_id",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "icellusedkars",
+          "title": "Sony Vaio; or, The Laptop",
+          "article_id": 1,
+          "body": "Text from the article..",
+          "topic": "mitch",
+          "created_at": 1527695953341,
+          "votes": 0,
+          "comment_count": 3
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "serves an array of an articles with a specific article_id and has had votes incremented/decremented by the value input",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "author": "icellusedkars",
+          "title": "Sony Vaio; or, The Laptop",
+          "article_id": 4,
+          "body": "Text from the article..",
+          "topic": "mitch",
+          "created_at": 1527695953341,
+          "votes": 0,
+          "comment_count": 3
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of all articles with an article_id and that has  comments.",
+    "queries": ["sort_by", "order"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "comment_id": 2,
+          "votes": 3,
+          "created_at": 1527695953341,
+          "author": "rogersop",
+          "body": "Text from the article.."
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "serves an array of an article with an article_id and that has had comments inputed into comments",
+    "queries": ["sort_by", "order"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "comment_id": 2,
+          "votes": 3,
+          "created_at": 1527695953341,
+          "author": "rogersop",
+          "body": "Text from the article.."
+        }
+      ]
+    }
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "serves an array of a patched comment with an comment_id when given an inc_votes value to increment/decrement the votes key",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "comment_id": 2,
+          "votes": 5,
+          "created_at": 1527695953341,
+          "author": "rogersop",
+          "body": "Text from the article.."
+        }
+      ]
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "Returns 204 when given a comment_id that exists to delete",
+    "queries": [],
+    "exampleResponse": {
+      "articles": [
+        {
+          "comment_id": 2,
+          "votes": 5,
+          "created_at": 1527695953341,
+          "author": "rogersop",
+          "body": "Text from the article.."
         }
       ]
     }

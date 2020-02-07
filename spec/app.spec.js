@@ -714,5 +714,16 @@ describe("/api", () => {
         return Promise.all(methodPromises);
       });
     });
+    describe("/api", () => {
+      it.only("GET - Returns all api endpoints in a JSON object", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body }) => {
+            console.log(body);
+            expect(body).to.be.an("object");
+          });
+      });
+    });
   });
 });

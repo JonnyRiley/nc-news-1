@@ -3,6 +3,7 @@ const app = express();
 const apiRouter = require("./routes/api_router");
 const { customErrors, psqlErrors, serverErrors } = require("./errors");
 app.use(express.json());
+
 app.use("/api", apiRouter);
 
 app.all("/*", (request, response, next) => {
