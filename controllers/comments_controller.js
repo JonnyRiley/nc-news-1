@@ -4,7 +4,6 @@ const {
 } = require("../models/comments_models");
 
 exports.patchComments = (request, response, next) => {
-  console.log(request.body, request.params, "im in controller");
   const { comment_id } = request.params;
   const { inc_votes } = request.body;
   insertedComments(comment_id, inc_votes)
@@ -18,10 +17,9 @@ exports.patchComments = (request, response, next) => {
 };
 
 exports.deleteCommentByCommentId = (request, response, next) => {
-  console.log("IM in controller");
   const { comment_id } = request.params;
   deletedComment(comment_id)
-    .then(comment => {
+    .then(() => {
       response.status(204).send();
     })
     .catch(err => {

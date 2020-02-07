@@ -6,7 +6,7 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 app.all("/*", (request, response, next) => {
-  next({ status: 405, msg: "Route pathway NOT FOUND" });
+  next({ status: 404, msg: "Route pathway NOT FOUND" });
 });
 app.use(customErrors);
 app.use(psqlErrors);
