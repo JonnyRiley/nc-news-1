@@ -1,9 +1,10 @@
 const { selectUsers } = require("../models/users_models");
 
 exports.getUsers = (request, response, next) => {
-  selectUsers(request.params.username)
-    .then(users => {
-      response.status(200).send({ users });
+  const { username } = request.params;
+  selectUsers(username)
+    .then(user => {
+      response.status(200).send({ user });
     })
     .catch(err => {
       console.log(err);

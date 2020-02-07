@@ -12,31 +12,28 @@ exports.selectArticles = () => {
     });
 };
 
-exports.selectArticlesById = (article_id, inc_vote) => {
-  const { selectArticles } = module.exports;
-  return selectArticles().then(() => {
-    return connection("articles")
-      .select("articles.*")
-      .count({ comment_count: "comments.comment_id" })
-      .leftJoin("comments", "articles.article_id", "comments.article_id")
-      .where("articles.article_id", "=", article_id)
-      .groupBy("articles.article_id")
-      .modify(function(articleQuery) {
-        if (article_id)
-          articleQuery.where("articles.article_id", "=", article_id);
-      })
-      .then(res => {
-        if (res.length === 0) {
-          return Promise.reject({ status: 404, msg: "Not-Found" });
-        } else {
-          return res;
-        }
-      });
-  });
+exports.selectArticlesById = (article_id, inc_votes) => {
+  return connection("articles")
+    .select("articles.*")
+    .count({ comment_count: "comments.comment_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .where("articles.article_id", "=", article_id)
+    .groupBy("articles.article_id")
+    .modify(function(articleQuery) {
+      if (article_id)
+        articleQuery.where("articles.article_id", "=", article_id);
+    })
+    .then(res => {
+      if (res.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not-Found" });
+      } else {
+        return res;
+      }
+    });
 };
 
 exports.patchIncVotes = (article_id, inc_votes) => {
-  if ((article_id && Number.isInteger(inc_votes)) || inc_votes === undefined)
+  if (article_id && Number.isInteger(inc_votes)) {
     return connection("articles")
       .select("*")
       .where("articles.article_id", "=", article_id)
@@ -50,9 +47,17 @@ exports.patchIncVotes = (article_id, inc_votes) => {
             msg: "Bad Request"
           });
         }
-        return res;
+        console.log(res[0]);
+        return res[0];
       });
+  } else {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad Request"
+    });
+  }
 };
+
 exports.checkArticleIdExists = article_id => {
   return connection("articles")
     .select("*")
@@ -75,17 +80,16 @@ exports.insertComment = (article_id, username, body) => {
       })
       .returning("*")
       .then(res => {
-        return Promise.all([res, checkArticleIdExists(article_id)]).then(
-          ([res, checkArticleIdExists]) => {
-            if (checkArticleIdExists) {
-              return res;
-            } else
-              return Promise.reject({
-                status: 404,
-                msg: "Bad Request"
-              });
-          }
-        );
+        return Promise.all([res, checkArticleIdExists(article_id)]);
+      })
+      .then(([res, checkArticleIdExists]) => {
+        if (checkArticleIdExists) {
+          return res;
+        } else
+          return Promise.reject({
+            status: 404,
+            msg: "Bad Request"
+          });
       });
   return res;
 };
@@ -103,7 +107,8 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
   ];
   if (orderExists.includes(order) && collumnExists.includes(sort_by)) {
     return connection
-      .select("comment_id", "votes", "created_at", "author", "body")
+      .select("*")
+      .where("article_id", article_id)
       .from("comments")
       .orderBy(sort_by || "created_at", order || "desc")
       .then(res => {
@@ -120,6 +125,7 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
       });
   } else return Promise.reject({ status: 400, msg: "Bad Request" });
 };
+
 const checkAuthorExists = author => {
   if (author) {
     return connection("users")
@@ -152,13 +158,8 @@ exports.topicExists = topic => {
   } else return false;
 };
 
-exports.getAllArticles = (
-  sort_by,
-  order,
-  author = undefined,
-  topic = undefined
-) => {
-  const { topicExists } = module.exports;
+exports.checkIncVotes = (sort_by, order) => {
+  console.log(sort_by, order, "checkIncVotes");
   const orderExists = ["asc", "desc", undefined];
   const collumnExists = [
     "author",
@@ -169,51 +170,123 @@ exports.getAllArticles = (
     "votes",
     undefined
   ];
-  if (orderExists.includes(order) && collumnExists.includes(sort_by)) {
-    return connection("articles")
-      .select(
-        "articles.author",
-        "articles.title",
-        "articles.article_id",
-        "articles.topic",
-        "articles.created_at",
-        "articles.votes"
-      )
-      .count({ comment_count: "comments.comment_id" })
-      .leftJoin("comments", "articles.article_id", "comments.article_id")
-      .groupBy("articles.article_id")
-      .orderBy(sort_by || "created_at", order || "desc")
-      .modify(query => {
-        if (author) {
-          query.where("articles.author", author);
-        }
-        if (topic) {
-          query.where("articles.topic", topic);
-        }
-      })
-      .then(res => {
-        const authorExists = checkAuthorExists(author);
-        const topicExistsNew = topicExists(topic);
-        return Promise.all([res, authorExists, topicExistsNew]);
-      })
-      .then(([res, authorExists, topicExistsNew]) => {
-        if (authorExists) {
-          return res;
-        }
-        if (topicExistsNew) {
-          return res;
-        }
-        return res;
-      })
-      .then(queryResult => {
-        if (queryResult) {
-          return queryResult;
-        } else {
-          return Promise.reject({
-            status: 404,
-            msg: "Value for column does not exist"
-          });
-        }
-      });
-  } else return Promise.reject({ status: 400, msg: "Bad Request" });
+  console.log(orderExists.includes(order) && collumnExists.includes(sort_by));
+  if (orderExists.includes(order) && collumnExists.includes(sort_by))
+    return true;
+  else;
+  return Promise.reject({ status: 400, msg: "Bad Request" });
 };
+
+exports.getAllArticles = (
+  sort_by,
+  order,
+  author = undefined,
+  topic = undefined
+) => {
+  const { topicExists, checkIncVotes } = module.exports;
+
+  console.log("exists");
+  return connection("articles")
+    .select(
+      "articles.author",
+      "articles.title",
+      "articles.article_id",
+      "articles.topic",
+      "articles.created_at",
+      "articles.votes"
+    )
+    .count({ comment_count: "comments.comment_id" })
+    .leftJoin("comments", "articles.article_id", "comments.article_id")
+    .groupBy("articles.article_id")
+    .orderBy(sort_by || "created_at", order || "desc")
+    .modify(query => {
+      if (author) {
+        query.where("articles.author", author);
+      }
+      if (topic) {
+        query.where("articles.topic", topic);
+      }
+    })
+    .then(res => {
+      const inc_votes = checkIncVotes(sort_by, order);
+      const authorExists = checkAuthorExists(author);
+      const topicExistsNew = topicExists(topic);
+      return Promise.all([inc_votes, res, authorExists, topicExistsNew]);
+    })
+    .then(([inc_votes, res, authorExists, topicExistsNew]) => {
+      if (inc_votes === true) {
+        return res;
+      } else {
+        return Promise.reject({
+          status: 404,
+          msg: "Value for column does not exist"
+        });
+      }
+    });
+};
+
+// exports.getAllArticles = (
+//   sort_by,
+//   order,
+//   author = undefined,
+//   topic = undefined
+// ) => {
+//   const { topicExists } = module.exports;
+//   const orderExists = ["asc", "desc", undefined];
+//   const collumnExists = [
+//     "author",
+//     "title",
+//     "article_id",
+//     "topic",
+//     "created_at",
+//     "votes",
+//     undefined
+//   ];
+//   if (orderExists.includes(order) && collumnExists.includes(sort_by)) {
+//     return connection("articles")
+//       .select(
+//         "articles.author",
+//         "articles.title",
+//         "articles.article_id",
+//         "articles.topic",
+//         "articles.created_at",
+//         "articles.votes"
+//       )
+//       .count({ comment_count: "comments.comment_id" })
+//       .leftJoin("comments", "articles.article_id", "comments.article_id")
+//       .groupBy("articles.article_id")
+//       .orderBy(sort_by || "created_at", order || "desc")
+//       .modify(query => {
+//         if (author) {
+//           query.where("articles.author", author);
+//         }
+//         if (topic) {
+//           query.where("articles.topic", topic);
+//         }
+//       })
+//       .then(res => {
+//         const authorExists = checkAuthorExists(author);
+//         const topicExistsNew = topicExists(topic);
+//         return Promise.all([res, authorExists, topicExistsNew]);
+//       })
+//       .then(([res, authorExists, topicExistsNew]) => {
+//         if (authorExists) {
+//           return res;
+//         }
+//         if (topicExistsNew) {
+//           return res;
+//         }
+//         return res;
+//       })
+//       .then(queryResult => {
+//         if (queryResult) {
+//           return queryResult;
+//         } else {
+//           return Promise.reject({
+//             status: 404,
+//             msg: "Value for column does not exist"
+//           });
+//         }
+//       });
+//   } else return Promise.reject({ status: 400, msg: "Bad Request" });
+// };

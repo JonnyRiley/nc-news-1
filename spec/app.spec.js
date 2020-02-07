@@ -40,8 +40,8 @@ describe("/api", () => {
           .get("/api/users/rogersop")
           .expect(200)
           .then(res => {
-            const { users } = res.body;
-            expect(users[0].username).to.equal("rogersop");
+            const { user } = res.body;
+            expect(user[0].username).to.equal("rogersop");
           });
       });
       it("GET - Responds with an object with the properties username, avatar_url, name", () => {
@@ -49,17 +49,18 @@ describe("/api", () => {
           .get("/api/users/rogersop")
           .expect(200)
           .then(res => {
-            const { users } = res.body;
-            expect(users[0]).to.contain.keys("username");
+            const { user } = res.body;
+            expect(user[0]).to.contain.keys("username");
+            expect(res.body).to.contain.keys("user");
           });
       });
-      it("Error 400 - Returns status 400 for invalid username column", () => {
+      it("Error 404 - Returns status 404 for invalid username column", () => {
         return request(app)
           .get("/api/users/53billyGoat")
-          .expect(400)
+          .expect(404)
           .then(res => {
             const { body } = res;
-            expect(body.msg).to.equal("Bad Request - Invalid column provided");
+            expect(body.msg).to.equal("Not Found - Invalid username");
           });
       });
       it("Error 405 - Status:405", () => {
@@ -136,9 +137,22 @@ describe("/api", () => {
           .get("/api/articles/1")
           .expect(200)
           .then(res => {
-            const { articles } = res.body;
-            expect(articles[0].article_id).to.equal(1);
-            expect(res.body).to.have.key("articles");
+            console.log(res.body);
+            const { article } = res.body;
+            expect(article[0].article_id).to.equal(1);
+            expect(res.body).to.have.key("article");
+          });
+      });
+      it("GET - Responds with an object with all the votes property that has been referenced from a specific article_id", () => {
+        return request(app)
+          .get("/api/articles/2")
+          .expect(200)
+          .then(({ body }) => {
+            console.log(body);
+            const { article } = body;
+            expect(article[0].votes).to.equal(0);
+            expect(body).to.have.key("article");
+            expect(article[0].comment_count).to.eql("0");
           });
       });
       it("GET - Responds with an object with all the properties referenced for an article_id 2 ", () => {
@@ -146,7 +160,7 @@ describe("/api", () => {
           .get("/api/articles/2")
           .expect(200)
           .then(({ body }) => {
-            expect(body.articles[0].votes).to.equal(0);
+            expect(body.article[0].votes).to.equal(0);
           });
       });
       it("GET - Responds with an object with all the properties referenced for an article with the article_id of 1 which has the comment_count of 13", () => {
@@ -154,15 +168,15 @@ describe("/api", () => {
           .get("/api/articles/1")
           .expect(200)
           .then(({ body }) => {
-            expect(body.articles[0].comment_count).to.eql("13");
+            expect(body.article[0].comment_count).to.eql("13");
           });
       });
-      it("Error 400 - returns status 400 for invalid column provided", () => {
+      it("Error 404 - returns status 404 for invalid column provided", () => {
         return request(app)
           .get("/api/articles/dog")
-          .expect(400)
+          .expect(404)
           .then(res => {
-            expect(res.status).to.equal(400);
+            expect(res.status).to.equal(404);
           });
       });
       it("Error 404 - Responds with 404 when URL is NOT FOUND", () => {
@@ -176,38 +190,38 @@ describe("/api", () => {
       it("PATCH - Returns a new object with the key of vote which is added to the value of votes that is incremented for a specific article_id", () => {
         return request(app)
           .patch("/api/articles/1")
-          .expect(201)
-          .send({ inc_vote: 12 })
+          .expect(200)
+          .send({ inc_votes: 12 })
           .then(({ body }) => {
             const incrementedVote = 112;
-            expect(body.article[0].votes).to.eql(incrementedVote);
+            expect(body.article.votes).to.eql(incrementedVote);
           });
       });
       it("PATCH - returns a new object with the key of votes which has a plus value of votes that need to be incremented for article_id 2", () => {
         return request(app)
           .patch("/api/articles/2")
-          .expect(201)
-          .send({ inc_vote: 12 })
+          .expect(200)
+          .send({ inc_votes: 12 })
           .then(({ body }) => {
             const incrementedVote = 12;
-            expect(body.article[0].votes).to.eql(incrementedVote);
+            expect(body.article.votes).to.eql(incrementedVote);
           });
       });
       it("PATCH - returns a new object with the key of votes which has a minus value of votes that need to decrement for article_id 2", () => {
         return request(app)
           .patch("/api/articles/2")
-          .expect(201)
-          .send({ inc_vote: -12 })
+          .expect(200)
+          .send({ inc_votes: -12 })
           .then(({ body }) => {
             const incrementedVote = -12;
-            expect(body.article[0].votes).to.eql(incrementedVote);
+            expect(body.article.votes).to.eql(incrementedVote);
           });
       });
       it("PATCH - returns a new object with the key of inc_vote that increments the vote count and has the key of article", () => {
         return request(app)
           .patch("/api/articles/1")
-          .expect(201)
-          .send({ inc_vote: 120 })
+          .expect(200)
+          .send({ inc_votes: 120 })
           .then(({ body }) => {
             expect(body).to.contain.key("article");
           });
@@ -215,16 +229,7 @@ describe("/api", () => {
       it("PATCH - returns an object according to the article_id when no body is sent", () => {
         return request(app)
           .patch("/api/articles/1")
-          .expect(201)
-          .then(({ body }) => {
-            expect(body.article[0].article_id).to.equal(1);
-          });
-      });
-      it("Error 400 - returns status 400 for no inc_votes on the body", () => {
-        return request(app)
-          .patch("/api/articles/33")
           .expect(400)
-          .send({ inc_vote: 3 })
           .then(({ body }) => {
             expect(body.msg).to.equal("Bad Request");
           });
@@ -233,7 +238,25 @@ describe("/api", () => {
         return request(app)
           .patch("/api/articles/33")
           .expect(400)
-          .send({ inc_vote: 3 })
+          .send({ inc_votes: 3 })
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Bad Request");
+          });
+      });
+      it("Error 400 - returns status 400 for a Bad Request value on the inc_votes key", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ inc_votes: "fdd" })
+          .then(({ body }) => {
+            expect(body.msg).to.equal("Bad Request");
+          });
+      });
+      it("Error 400 - returns status 400 for no inc_votes on the body", () => {
+        return request(app)
+          .patch("/api/articles/33")
+          .expect(400)
+          .send({ inc_votes: 3 })
           .then(({ body }) => {
             expect(body).to.be.an("object");
           });
@@ -282,9 +305,38 @@ describe("/api", () => {
             body: "I find this existence challenging"
           })
           .then(({ body }) => {
+            console.log(body);
+            expect(body.comment[0]).to.contain.keys(
+              "comment_id",
+              "author",
+              "body",
+              "votes",
+              "created_at"
+            );
             expect(body.comment[0].comment_id).to.equal(19);
             expect(body.comment[0].comment_id).to.be.a("number");
             expect(body.comment[0].body).to.be.a("string");
+          });
+      });
+      it("POST - Returns an object that contains the keys of comment_id, author,body , votes, created_at", () => {
+        return request(app)
+          .post("/api/articles/2/comments")
+          .expect(201)
+          .send({
+            username: "butter_bridge",
+            body: "I find this existence challenging"
+          })
+          .then(({ body }) => {
+            console.log(body);
+            expect(body.comment[0]).to.contain.keys(
+              "comment_id",
+              "author",
+              "body",
+              "votes",
+              "created_at"
+            );
+            expect(body).to.have.key("comment");
+            expect(body.comment[0].votes).to.equal(0);
           });
       });
       it("Error 404 - When given an object with the keys of username and body but will error and send 404 Bad Request as the article_id does not exist", () => {
@@ -340,7 +392,9 @@ describe("/api", () => {
           .get("/api/articles/1/comments")
           .expect(200)
           .then(({ body }) => {
+            console.log(body);
             expect(body).to.be.an("object");
+            expect(body.comments[0].comment_id).to.equal(2);
             expect(body.comments).to.be.sortedBy("created_at", {
               descending: true
             });
@@ -631,7 +685,7 @@ describe("/api", () => {
       it("PATCH - Returns an array with the value of inc_votes that have been incremented into the votes key in comments", () => {
         return request(app)
           .patch("/api/comments/2")
-          .expect(201)
+          .expect(200)
           .send({ inc_votes: 2 })
           .then(({ body }) => {
             const incrementedVotes = 16;
@@ -643,9 +697,10 @@ describe("/api", () => {
       it("PATCH - Returns an array with the value of inc_votes that have been decremented into the votes key in comments", () => {
         return request(app)
           .patch("/api/comments/2")
-          .expect(201)
+          .expect(200)
           .send({ inc_votes: -2 })
           .then(({ body }) => {
+            console.log(body);
             const incrementedVotes = 12;
             expect(body.comment[0].comment_id).to.equal(2);
             expect(body.comment[0].votes).to.equal(incrementedVotes);
@@ -664,10 +719,10 @@ describe("/api", () => {
       it("ERROR 400 - Returns a 400 when given an invalid inc_votes values in the body", () => {
         return request(app)
           .patch("/api/comments/875")
-          .expect(400)
-          .send({ inc_votes: "mfji" })
+          .expect(404)
+          .send({ inc_votes: 3 })
           .then(({ body }) => {
-            expect(body.msg).to.equal("Bad Request");
+            expect(body.msg).to.equal("comment_id Not Found");
           });
       });
       it("ERROR 400 - Returns a 400 when given an invalid comment_id", () => {
@@ -693,16 +748,16 @@ describe("/api", () => {
           .delete("/api/comments/1")
           .expect(204);
       });
-      it("ERROR 400 - Returns a 400 when given an invalid comment_id to delete", () => {
+      it("ERROR 404 - Returns a 404 when given an invalid comment_id to delete", () => {
         return request(app)
           .delete("/api/comments/not-valid-id")
-          .expect(400)
+          .expect(404)
           .then(({ body }) => {
-            expect(body.msg).to.equal("Bad Request");
+            expect(body.msg).to.equal("Not Found");
           });
       });
       it("Error 405 - Status:405", () => {
-        const invalidMethods = ["get", ""];
+        const invalidMethods = ["get"];
         const methodPromises = invalidMethods.map(method => {
           return request(app)
             .get("/api/comments/1")
@@ -715,7 +770,7 @@ describe("/api", () => {
       });
     });
     describe("/api", () => {
-      it.only("GET - Returns all api endpoints in a JSON object", () => {
+      it("GET - Returns all api endpoints in a JSON object", () => {
         return request(app)
           .get("/api")
           .expect(200)
@@ -723,6 +778,18 @@ describe("/api", () => {
             console.log(body);
             expect(body).to.be.an("object");
           });
+      });
+      it("Error 405 - Status:405", () => {
+        const invalidMethods = ["delete"];
+        const methodPromises = invalidMethods.map(method => {
+          return request(app)
+            .delete("/api")
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal("Method not allowed");
+            });
+        });
+        return Promise.all(methodPromises);
       });
     });
   });

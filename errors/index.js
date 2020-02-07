@@ -5,8 +5,8 @@ exports.customErrors = (err, req, res, next) => {
 };
 
 exports.psqlErrors = (err, req, res, next) => {
-  const badRequest = ["23503"];
-  const psql = ["42703", "22P02", "23505", "42601", "42803", "23502", "42712"];
+  const badRequest = ["23503", "22P02"];
+  const psql = ["42703", "23505", "42601", "42803", "23502", "42712"];
 
   if (psql.includes(err.code)) {
     res.status(400).send({ msg: "Bad Request" });
@@ -21,4 +21,8 @@ exports.serverErrors = (err, req, res, next) => {
 
 exports.send405Error = (req, res, next) => {
   res.status(405).send({ msg: "Method not allowed" });
+};
+
+exports.all404Errors = (request, response, next) => {
+  next({ status: 404, msg: "Route pathway NOT FOUND" });
 };

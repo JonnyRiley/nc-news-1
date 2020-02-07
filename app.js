@@ -1,14 +1,17 @@
 const express = require("express");
 const app = express();
 const apiRouter = require("./routes/api_router");
-const { customErrors, psqlErrors, serverErrors } = require("./errors");
+const {
+  customErrors,
+  psqlErrors,
+  serverErrors,
+  all404Errors
+} = require("./errors");
 app.use(express.json());
 
 app.use("/api", apiRouter);
 
-app.all("/*", (request, response, next) => {
-  next({ status: 404, msg: "Route pathway NOT FOUND" });
-});
+app.all("/*", all404Errors);
 app.use(customErrors);
 app.use(psqlErrors);
 app.use(serverErrors);

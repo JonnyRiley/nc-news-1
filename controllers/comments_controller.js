@@ -8,7 +8,7 @@ exports.patchComments = (request, response, next) => {
   const { inc_votes } = request.body;
   insertedComments(comment_id, inc_votes)
     .then(comment => {
-      response.status(201).send({ comment });
+      response.status(200).send({ comment });
     })
     .catch(err => {
       console.log(err);

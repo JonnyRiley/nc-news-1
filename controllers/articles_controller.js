@@ -20,8 +20,8 @@ exports.getArticles = (request, response, next) => {
 
 exports.getArticlesById = (request, response, next) => {
   selectArticlesById(request.params.article_id)
-    .then(articles => {
-      response.status(200).send({ articles });
+    .then(article => {
+      response.status(200).send({ article });
     })
     .catch(err => {
       console.log(err);
@@ -30,9 +30,11 @@ exports.getArticlesById = (request, response, next) => {
 };
 
 exports.incrementVotes = (request, response, next) => {
-  patchIncVotes(request.params.article_id, request.body.inc_vote)
+  const { article_id } = request.params;
+  const { inc_votes } = request.body;
+  patchIncVotes(article_id, inc_votes)
     .then(article => {
-      response.status(201).send({ article });
+      response.status(200).send({ article });
     })
     .catch(err => {
       console.log(err);
@@ -41,11 +43,9 @@ exports.incrementVotes = (request, response, next) => {
 };
 
 exports.postComments = (request, response, next) => {
-  insertComment(
-    request.params.article_id,
-    request.body.username,
-    request.body.body
-  )
+  const { article_id } = request.params;
+  const { username, body } = request.body;
+  insertComment(article_id, username, body)
     .then(comment => {
       response.status(201).send({ comment });
     })
