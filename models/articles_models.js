@@ -158,8 +158,8 @@ exports.topicExists = topic => {
   } else return false;
 };
 
-exports.checkIncVotes = (sort_by, order) => {
-  console.log(sort_by, order, "checkIncVotes");
+exports.queryCheck = (sort_by, order) => {
+  console.log(sort_by, order, "queryCheck");
   const orderExists = ["asc", "desc", undefined];
   const collumnExists = [
     "author",
@@ -183,7 +183,7 @@ exports.getAllArticles = (
   author = undefined,
   topic = undefined
 ) => {
-  const { topicExists, checkIncVotes } = module.exports;
+  const { topicExists, queryCheck } = module.exports;
 
   console.log("exists");
   return connection("articles")
@@ -208,13 +208,13 @@ exports.getAllArticles = (
       }
     })
     .then(res => {
-      const inc_votes = checkIncVotes(sort_by, order);
+      const queryChecked = queryCheck(sort_by, order);
       const authorExists = checkAuthorExists(author);
       const topicExistsNew = topicExists(topic);
-      return Promise.all([inc_votes, res, authorExists, topicExistsNew]);
+      return Promise.all([queryChecked, res, authorExists, topicExistsNew]);
     })
-    .then(([inc_votes, res, authorExists, topicExistsNew]) => {
-      if (inc_votes === true) {
+    .then(([queryChecked, res, authorExists, topicExistsNew]) => {
+      if (queryChecked === true) {
         return res;
       } else {
         return Promise.reject({
