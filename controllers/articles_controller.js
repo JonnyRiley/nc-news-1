@@ -20,7 +20,8 @@ exports.getArticles = (request, response, next) => {
 
 exports.getArticlesById = (request, response, next) => {
   selectArticlesById(request.params.article_id)
-    .then(article => {
+    .then(([article]) => {
+      console.log(article, "CONTROLLER");
       response.status(200).send({ article });
     })
     .catch(err => {
@@ -46,7 +47,8 @@ exports.postComments = (request, response, next) => {
   const { article_id } = request.params;
   const { username, body } = request.body;
   insertComment(article_id, username, body)
-    .then(comment => {
+    .then(([comment]) => {
+      console.log(comment, "RES.SEND");
       response.status(201).send({ comment });
     })
     .catch(err => {

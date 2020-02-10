@@ -5,12 +5,21 @@ exports.customErrors = (err, req, res, next) => {
 };
 
 exports.psqlErrors = (err, req, res, next) => {
-  const badRequest = ["23503", "22P02"];
-  const psql = ["42703", "23505", "42601", "42803", "23502", "42712"];
+  const notFound = [];
+  const psql = [
+    "23503",
+    "42703",
+    "23505",
+    "42601",
+    "42803",
+    "23502",
+    "42712",
+    "22P02"
+  ];
 
   if (psql.includes(err.code)) {
     res.status(400).send({ msg: "Bad Request" });
-  } else if (badRequest.includes(err.code)) {
+  } else if (notFound.includes(err.code)) {
     res.status(404).send({ msg: "Not Found" });
   } else next(err);
 };

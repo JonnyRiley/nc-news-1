@@ -12,28 +12,34 @@ exports.selectArticles = () => {
     });
 };
 
-exports.selectArticlesById = (article_id, inc_votes) => {
-  return connection("articles")
-    .select("articles.*")
-    .count({ comment_count: "comments.comment_id" })
-    .leftJoin("comments", "articles.article_id", "comments.article_id")
-    .where("articles.article_id", "=", article_id)
-    .groupBy("articles.article_id")
-    .modify(function(articleQuery) {
-      if (article_id)
-        articleQuery.where("articles.article_id", "=", article_id);
-    })
-    .then(res => {
-      if (res.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not-Found" });
-      } else {
-        return res;
-      }
-    });
+exports.selectArticlesById = article_id => {
+  console.log(article_id, isNaN(article_id));
+  if (!isNaN(article_id)) {
+    return connection("articles")
+      .select("articles.*")
+      .count({ comment_count: "comments.comment_id" })
+      .leftJoin("comments", "articles.article_id", "comments.article_id")
+      .where("articles.article_id", "=", article_id)
+      .groupBy("articles.article_id")
+      .modify(function(articleQuery) {
+        if (article_id)
+          articleQuery.where("articles.article_id", "=", article_id);
+      })
+      .then(res => {
+        if (res.length === 0) {
+          return Promise.reject({ status: 404, msg: "Not-Found" });
+        } else {
+          return res;
+        }
+      });
+  } else {
+    return Promise.reject({ status: 400, msg: "Not-Found" });
+  }
 };
 
 exports.patchIncVotes = (article_id, inc_votes) => {
-  if (article_id && Number.isInteger(inc_votes)) {
+  console.log(inc_votes, "hillo");
+  if ((article_id && Number.isInteger(inc_votes)) || inc_votes === undefined) {
     return connection("articles")
       .select("*")
       .where("articles.article_id", "=", article_id)
@@ -119,8 +125,8 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
           return res;
         } else
           return Promise.reject({
-            status: 404,
-            msg: "Value for column does not exist"
+            status: 400,
+            msg: "Bad Request"
           });
       });
   } else return Promise.reject({ status: 400, msg: "Bad Request" });

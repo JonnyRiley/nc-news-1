@@ -2,7 +2,7 @@ const connection = require("../db/connection");
 
 exports.insertedComments = (comment_id, inc_votes) => {
   const { checkCommentIdExists } = module.exports;
-  if (comment_id && Number.isInteger(inc_votes)) {
+  if ((comment_id && Number.isInteger(inc_votes)) || inc_votes === undefined) {
     return connection("comments")
       .select("*")
       .where("comments.comment_id", "=", comment_id)
