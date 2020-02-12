@@ -2,11 +2,10 @@ process.env.NODE_ENV = "test";
 const app = require("../app");
 const request = require("supertest");
 const chai = require("chai");
-const chaiSorted = require("chai-sorted");
 const { expect } = chai;
 const connection = require("../db/connection");
 
-chai.use(require("sams-chai-sorted"));
+chai.use(require("chai-sorted"));
 
 describe("/api", () => {
   beforeEach(() => {
@@ -100,7 +99,7 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
-    it("GET - Responds with a staus 200 for getting all articles ", () => {
+    it("GET - Responds with a status 200 for getting all articles ", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -405,7 +404,7 @@ describe("/api", () => {
           });
         });
     });
-    it("GET - responds with a sort_by criteria of comment_id and order critreria of descending in an array with the article_id 2", () => {
+    it("GET - responds with a sort_by criteria of comment_id and order criteria of descending in an array with the article_id 2", () => {
       return request(app)
         .get("/api/articles/2/comments?sort_by=comment_id&&order=desc")
         .expect(200)
@@ -456,7 +455,7 @@ describe("/api", () => {
           });
         });
     });
-    it("Error 404 - responds with a Bad Request when given an article_id that doesnt exist", () => {
+    it("Error 404 - responds with a Bad Request when given an article_id that does not exist", () => {
       return request(app)
         .get("/api/articles/not-an-id/comments")
         .expect(400)
@@ -464,7 +463,7 @@ describe("/api", () => {
           expect(body.msg).to.equal("Bad Request");
         });
     });
-    it("Error 404 - responds with a Bad Request when given an article_id that doesnt exist", () => {
+    it("Error 404 - responds with a Bad Request when given an article_id that does not exist", () => {
       return request(app)
         .get("/api/articles/1000/comments")
         .expect(404)
@@ -474,7 +473,7 @@ describe("/api", () => {
     });
     it("GET - Returns a defaulted order when given an invalid order criteria", () => {
       return request(app)
-        .get("/api/articles/1/comments?order=notanOrder")
+        .get("/api/articles/1/comments?order=notAnOrder")
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).to.equal("Bad Request");
@@ -482,7 +481,7 @@ describe("/api", () => {
     });
     it("GET - Returns a defaulted sorted by when given an invalid sort_by criteria", () => {
       return request(app)
-        .get("/api/articles/1/comments?sort_by=notAsort_by")
+        .get("/api/articles/1/comments?sort_by=notASort_by")
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).to.equal("Bad Request");
@@ -563,7 +562,7 @@ describe("/api", () => {
           });
         });
     });
-    it("GET - Returns an array of all articles that has been organised in ascending order", () => {
+    it("GET - Returns an array of all articles that has been organized in ascending order", () => {
       return request(app)
         .get("/api/articles?order=asc")
         .expect(200)
@@ -630,7 +629,7 @@ describe("/api", () => {
           expect(body.msg).to.equal("Bad Request");
         });
     });
-    it("ERROR 400 - Returns a 400 when given a sort_by criteria that is not-a-collumn ", () => {
+    it("ERROR 400 - Returns a 400 when given a sort_by criteria that is not-a-column ", () => {
       return request(app)
         .get("/api/articles?sort_by=not-a-column")
         .expect(400)
@@ -638,7 +637,7 @@ describe("/api", () => {
           expect(body.msg).to.equal("Bad Request");
         });
     });
-    it("ERROR 400 - Returns a 400 when given a order criteria that is not-a-collumn ", () => {
+    it("ERROR 400 - Returns a 400 when given a order criteria that is not-a-column ", () => {
       return request(app)
         .get("/api/articles?order=not-asc-or-desc")
         .expect(400)
@@ -708,7 +707,7 @@ describe("/api", () => {
           expect(body).to.contain.key("comment");
         });
     });
-    it("PATCH - Returns a cooment when given no body to patch with a valid comment_id", () => {
+    it("PATCH - Returns a comment when given no body to patch with a valid comment_id", () => {
       return request(app)
         .patch("/api/comments/1")
         .expect(200)

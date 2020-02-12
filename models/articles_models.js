@@ -99,7 +99,7 @@ exports.insertComment = (article_id, username, body) => {
 exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
   const { checkArticleIdExists } = module.exports;
   const orderExists = ["asc", "desc", undefined];
-  const collumnExists = [
+  const columnExists = [
     "comment_id",
     "votes",
     "created_at",
@@ -107,7 +107,7 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
     "body",
     undefined
   ];
-  if (orderExists.includes(order) && collumnExists.includes(sort_by)) {
+  if (orderExists.includes(order) && columnExists.includes(sort_by)) {
     return connection
       .select("*")
       .where("article_id", article_id)
@@ -162,7 +162,7 @@ exports.topicExists = topic => {
 
 exports.queryCheck = (sort_by, order) => {
   const orderExists = ["asc", "desc", undefined];
-  const collumnExists = [
+  const columnExists = [
     "author",
     "title",
     "article_id",
@@ -171,7 +171,7 @@ exports.queryCheck = (sort_by, order) => {
     "votes",
     undefined
   ];
-  if (orderExists.includes(order) && collumnExists.includes(sort_by))
+  if (orderExists.includes(order) && columnExists.includes(sort_by))
     return true;
   else;
   return Promise.reject({ status: 400, msg: "Bad Request" });
