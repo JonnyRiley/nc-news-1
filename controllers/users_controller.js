@@ -7,7 +7,6 @@ exports.getUsers = (request, response, next) => {
       response.status(200).send({ user });
     })
     .catch(err => {
-      console.log(err);
       next(err);
     });
 };

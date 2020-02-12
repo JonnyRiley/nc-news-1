@@ -5,7 +5,6 @@ const articlesRouter = require("./articles_router");
 const commentsRouter = require("./comments_router");
 const allEndpoints = require("../endpoints.json");
 const { send405Error } = require("../errors");
-console.log(" Im in the apiRouter");
 apiRouter
   .route("/")
   .get((req, res, next) => {

@@ -13,7 +13,6 @@ exports.selectArticles = () => {
 };
 
 exports.selectArticlesById = article_id => {
-  console.log(article_id, isNaN(article_id));
   if (!isNaN(article_id)) {
     return connection("articles")
       .select("articles.*")
@@ -38,7 +37,6 @@ exports.selectArticlesById = article_id => {
 };
 
 exports.patchIncVotes = (article_id, inc_votes) => {
-  console.log(inc_votes, "hillo");
   if ((article_id && Number.isInteger(inc_votes)) || inc_votes === undefined) {
     return connection("articles")
       .select("*")
@@ -46,14 +44,12 @@ exports.patchIncVotes = (article_id, inc_votes) => {
       .increment("votes", inc_votes || 0)
       .returning("*")
       .then(res => {
-        console.log(res, "response");
         if (!res.length) {
           return Promise.reject({
             status: 400,
             msg: "Bad Request"
           });
         }
-        console.log(res[0]);
         return res[0];
       });
   } else {
@@ -125,8 +121,8 @@ exports.selectCommentsByArticleId = (article_id, sort_by, order) => {
           return res;
         } else
           return Promise.reject({
-            status: 400,
-            msg: "Bad Request"
+            status: 404,
+            msg: "Not Found"
           });
       });
   } else return Promise.reject({ status: 400, msg: "Bad Request" });
@@ -165,7 +161,6 @@ exports.topicExists = topic => {
 };
 
 exports.queryCheck = (sort_by, order) => {
-  console.log(sort_by, order, "queryCheck");
   const orderExists = ["asc", "desc", undefined];
   const collumnExists = [
     "author",
@@ -176,7 +171,6 @@ exports.queryCheck = (sort_by, order) => {
     "votes",
     undefined
   ];
-  console.log(orderExists.includes(order) && collumnExists.includes(sort_by));
   if (orderExists.includes(order) && collumnExists.includes(sort_by))
     return true;
   else;
@@ -190,8 +184,6 @@ exports.getAllArticles = (
   topic = undefined
 ) => {
   const { topicExists, queryCheck } = module.exports;
-
-  console.log("exists");
   return connection("articles")
     .select(
       "articles.author",
@@ -230,69 +222,3 @@ exports.getAllArticles = (
       }
     });
 };
-
-// exports.getAllArticles = (
-//   sort_by,
-//   order,
-//   author = undefined,
-//   topic = undefined
-// ) => {
-//   const { topicExists } = module.exports;
-//   const orderExists = ["asc", "desc", undefined];
-//   const collumnExists = [
-//     "author",
-//     "title",
-//     "article_id",
-//     "topic",
-//     "created_at",
-//     "votes",
-//     undefined
-//   ];
-//   if (orderExists.includes(order) && collumnExists.includes(sort_by)) {
-//     return connection("articles")
-//       .select(
-//         "articles.author",
-//         "articles.title",
-//         "articles.article_id",
-//         "articles.topic",
-//         "articles.created_at",
-//         "articles.votes"
-//       )
-//       .count({ comment_count: "comments.comment_id" })
-//       .leftJoin("comments", "articles.article_id", "comments.article_id")
-//       .groupBy("articles.article_id")
-//       .orderBy(sort_by || "created_at", order || "desc")
-//       .modify(query => {
-//         if (author) {
-//           query.where("articles.author", author);
-//         }
-//         if (topic) {
-//           query.where("articles.topic", topic);
-//         }
-//       })
-//       .then(res => {
-//         const authorExists = checkAuthorExists(author);
-//         const topicExistsNew = topicExists(topic);
-//         return Promise.all([res, authorExists, topicExistsNew]);
-//       })
-//       .then(([res, authorExists, topicExistsNew]) => {
-//         if (authorExists) {
-//           return res;
-//         }
-//         if (topicExistsNew) {
-//           return res;
-//         }
-//         return res;
-//       })
-//       .then(queryResult => {
-//         if (queryResult) {
-//           return queryResult;
-//         } else {
-//           return Promise.reject({
-//             status: 404,
-//             msg: "Value for column does not exist"
-//           });
-//         }
-//       });
-//   } else return Promise.reject({ status: 400, msg: "Bad Request" });
-// };

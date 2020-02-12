@@ -41,7 +41,7 @@ exports.deletedComment = comment_id => {
       .del()
       .then(res => {
         if (res === 1) return res;
-        else return Promise.reject({ status: 400, msg: "Bad Request" });
+        else return Promise.reject({ status: 404, msg: "Not Found" });
       });
   } else return Promise.reject({ status: 400, msg: "Bad Request" });
 };
