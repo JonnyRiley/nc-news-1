@@ -5,7 +5,7 @@ const articlesRouter = require("./articles_router");
 const commentsRouter = require("./comments_router");
 const allEndpoints = require("../endpoints.json");
 const { send405Error } = require("../errors");
-const cors = require("cors");
+
 apiRouter
   .route("/")
   .get((req, res, next) => {
@@ -16,6 +16,5 @@ apiRouter.use("/topics", topicsRouter);
 apiRouter.use("/users", usersRouter);
 apiRouter.use("/articles", articlesRouter);
 apiRouter.use("/comments", commentsRouter);
-app.use(cors());
 
 module.exports = apiRouter;
