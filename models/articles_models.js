@@ -184,7 +184,7 @@ exports.getAllArticles = (
   topic = undefined
 ) => {
   const { topicExists, queryCheck } = module.exports;
-  return connection("articles")
+  return connection("articles.*")
     .select(
       "articles.author",
       "articles.title",

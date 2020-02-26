@@ -15,7 +15,7 @@ describe("/api", () => {
     return connection.destroy();
   });
   describe("/topics", () => {
-    it("GET: Responds with an array of topics objects, each film having the right properties", () => {
+    it("GET: Responds with an array of topics objects, each Topics having the right properties", () => {
       return request(app)
         .get("/api/topics")
         .expect(200)
