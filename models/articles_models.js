@@ -191,7 +191,8 @@ exports.getAllArticles = (
       "articles.article_id",
       "articles.topic",
       "articles.created_at",
-      "articles.votes"
+      "articles.votes",
+      "articles.comment_count"
     )
     .count({ comment_count: "comments.comment_id" })
     .leftJoin("comments", "articles.article_id", "comments.article_id")
