@@ -184,15 +184,8 @@ exports.getAllArticles = (
   topic = undefined
 ) => {
   const { topicExists, queryCheck } = module.exports;
-  return connection("articles.*")
-    .select(
-      "articles.author",
-      "articles.title",
-      "articles.article_id",
-      "articles.topic",
-      "articles.created_at",
-      "articles.votes"
-    )
+  return connection("articles")
+    .select("articles.*")
     .count({ comment_count: "comments.comment_id" })
     .leftJoin("comments", "articles.article_id", "comments.article_id")
     .groupBy("articles.article_id")
