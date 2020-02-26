@@ -169,6 +169,7 @@ exports.queryCheck = (sort_by, order) => {
     "topic",
     "created_at",
     "votes",
+    "comment_count",
     undefined
   ];
   if (orderExists.includes(order) && columnExists.includes(sort_by))

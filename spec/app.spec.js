@@ -525,6 +525,14 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
+    it.only("GET - Returns an array of all articles objects with all the key author, title, article_id, topic, created_at, votes, comment_count", () => {
+      return request(app)
+        .get("/api/articles?sort_by=comment_count")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).to.have.key("articles");
+        });
+    });
     it("GET - Returns an array of all articles objects with all the key author, title, article_id, topic, created_at, votes, comment_count", () => {
       return request(app)
         .get("/api/articles")
