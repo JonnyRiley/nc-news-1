@@ -8,9 +8,9 @@ const connection = require("../db/connection");
 chai.use(require("chai-sorted"));
 
 describe("/api", () => {
-  beforeEach(() => {
-    return connection.seed.run();
-  });
+  // beforeEach(() => {
+  //   return connection.seed.run();
+  // });
   after(() => {
     return connection.destroy();
   });
@@ -27,7 +27,7 @@ describe("/api", () => {
       return request(app)
         .get("/api/tc")
         .expect(404)
-        .then(res => {
+        .then((res) => {
           expect(res.status).to.equal(404);
         });
     });
@@ -37,7 +37,7 @@ describe("/api", () => {
       return request(app)
         .get("/api/users/rogersop")
         .expect(200)
-        .then(res => {
+        .then((res) => {
           const { user } = res.body;
           expect(user.username).to.equal("rogersop");
         });
@@ -46,7 +46,7 @@ describe("/api", () => {
       return request(app)
         .get("/api/users/rogersop")
         .expect(200)
-        .then(res => {
+        .then((res) => {
           const { user } = res.body;
           expect(user).to.contain.keys("username");
           expect(res.body).to.contain.keys("user");
@@ -56,14 +56,14 @@ describe("/api", () => {
       return request(app)
         .get("/api/users/53billyGoat")
         .expect(404)
-        .then(res => {
+        .then((res) => {
           const { body } = res;
           expect(body.msg).to.equal("Not Found - Invalid username");
         });
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .patch("/api/users/rogersop")
           .expect(405)
@@ -75,7 +75,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .put("/api/users/rogersop")
           .expect(405)
@@ -87,7 +87,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api/users/rogersop")
           .expect(405)
@@ -103,7 +103,7 @@ describe("/api", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
-        .then(res => {
+        .then((res) => {
           const { body } = res;
           expect(body).to.have.key("articles");
         });
@@ -118,7 +118,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .patch("/api/articles")
           .expect(405)
@@ -132,12 +132,12 @@ describe("/api", () => {
   describe("/articles/:article_id", () => {
     it("GET - Responds with an object with all the properties referenced from a specific article_id", () => {
       return request(app)
-        .get("/api/articles/1")
+        .get("/api/users/1")
         .expect(200)
-        .then(res => {
-          const { article } = res.body;
-          expect(article.article_id).to.equal(1);
-          expect(res.body).to.have.key("article");
+        .then((res) => {
+          const { user } = res.body;
+          expect(users.user_id).to.equal(1);
+          expect(res.body).to.have.key("allUsers");
         });
     });
     it("GET - Responds with an object with all the votes property that has been referenced from a specific article_id", () => {
@@ -171,7 +171,7 @@ describe("/api", () => {
       return request(app)
         .get("/api/articles/dog")
         .expect(400)
-        .then(res => {
+        .then((res) => {
           expect(res.status).to.equal(400);
         });
     });
@@ -268,7 +268,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["post", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .put("/api/articles/2")
           .expect(405)
@@ -280,7 +280,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["post", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api/articles/2")
           .expect(405)
@@ -298,7 +298,7 @@ describe("/api", () => {
         .expect(201)
         .send({
           username: "butter_bridge",
-          body: "I find this existence challenging"
+          body: "I find this existence challenging",
         })
         .then(({ body }) => {
           expect(body.comment).to.contain.keys(
@@ -313,25 +313,20 @@ describe("/api", () => {
           expect(body.comment.body).to.be.a("string");
         });
     });
-    it("POST - Returns an object that contains the keys of comment_id, author,body , votes, created_at", () => {
-      return request(app)
-        .post("/api/articles/2/comments")
-        .expect(201)
-        .send({
-          username: "butter_bridge",
-          body: "I find this existence challenging"
-        })
-        .then(({ body }) => {
-          expect(body.comment).to.contain.keys(
-            "comment_id",
-            "author",
-            "body",
-            "votes",
-            "created_at"
-          );
-          expect(body).to.have.key("comment");
-          expect(body.comment.votes).to.equal(0);
-        });
+    it.only("POST - Returns an object that contains the keys of comment_id, author,body , votes, created_at", () => {
+      return request(app).post("/api/users").expect(201).send({
+        username: "butter_bridge",
+        email: "j@djdd.com",
+      });
+      // .then((res) => {
+      //   console.log(res);
+      //   expect(res.body.comment).to.contain.keys(
+      //     "user_id",
+      //     "username",
+      //     "email",
+      //     "created_at"
+      //   );
+      // });
     });
     it("Error 404 - When given an article_id that does not exist", () => {
       return request(app)
@@ -339,7 +334,7 @@ describe("/api", () => {
         .expect(404)
         .send({
           username: "butter_bridge",
-          body: "I find this existence challenging"
+          body: "I find this existence challenging",
         })
         .then(({ body }) => {
           expect(body.msg).to.equal("Not Found");
@@ -351,7 +346,7 @@ describe("/api", () => {
         .expect(400)
         .send({
           userne: "butter_bridge",
-          boy: "I find this existence challenging"
+          boy: "I find this existence challenging",
         })
         .then(({ body }) => {
           expect(body.msg).to.equal("Bad Request");
@@ -359,7 +354,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api/articles/2/comments")
           .expect(405)
@@ -371,7 +366,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .patch("/api/articles/2/comments")
           .expect(405)
@@ -389,7 +384,7 @@ describe("/api", () => {
           expect(body).to.be.an("object");
           expect(body.comments[0].comment_id).to.equal(2);
           expect(body.comments).to.be.sortedBy("created_at", {
-            descending: true
+            descending: true,
           });
         });
     });
@@ -400,7 +395,7 @@ describe("/api", () => {
         .then(({ body }) => {
           expect(body).to.be.an("object");
           expect(body.comments).to.be.sortedBy("created_at", {
-            descending: true
+            descending: true,
           });
         });
     });
@@ -410,7 +405,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.be.sortedBy("comment_id", {
-            descending: true
+            descending: true,
           });
           expect(body.comments).to.be.an("array");
         });
@@ -421,7 +416,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.be.sortedBy("author", {
-            ascending: true
+            ascending: true,
           });
         });
     });
@@ -431,7 +426,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.be.sortedBy("created_at", {
-            descending: true
+            descending: true,
           });
         });
     });
@@ -441,7 +436,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.be.sortedBy("votes", {
-            descending: true
+            descending: true,
           });
         });
     });
@@ -451,7 +446,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.comments).to.be.sortedBy("created_at", {
-            descending: false
+            descending: false,
           });
         });
     });
@@ -489,7 +484,7 @@ describe("/api", () => {
     });
     it("Error 405 -Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api/articles/2/comments")
           .expect(405)
@@ -501,7 +496,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api/articles/2/comments?sort_by=comment_id")
           .expect(405)
@@ -513,7 +508,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .patch("/api/articles/2/comments?sort_by=comment_id")
           .expect(405)
@@ -525,7 +520,7 @@ describe("/api", () => {
     });
   });
   describe("/articles", () => {
-    it.only("GET - Returns an array of all articles objects with all the key author, title, article_id, topic, created_at, votes, comment_count", () => {
+    it("GET - Returns an array of all articles objects with all the key author, title, article_id, topic, created_at, votes, comment_count", () => {
       return request(app)
         .get("/api/articles?sort_by=comment_count")
         .expect(200)
@@ -557,7 +552,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.sortedBy("topic", {
-            descending: true
+            descending: true,
           });
         });
     });
@@ -567,7 +562,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.sortedBy("author", {
-            descending: false
+            descending: false,
           });
         });
     });
@@ -577,7 +572,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.sortedBy("created_at", {
-            descending: false
+            descending: false,
           });
         });
     });
@@ -587,7 +582,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.sortedBy("author", {
-            descending: true
+            descending: true,
           });
           expect(body.articles[0].author).to.eql("butter_bridge");
         });
@@ -598,7 +593,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.sortedBy("topic", {
-            descending: true
+            descending: true,
           });
           expect(body.articles[0].topic).to.eql("mitch");
         });
@@ -617,7 +612,7 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body.articles).to.be.sortedBy({
-            descending: true
+            descending: true,
           });
           expect(body.articles).to.eql([]);
         });
@@ -656,7 +651,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .patch("/api/articles")
           .expect(405)
@@ -668,7 +663,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .put("/api/articles")
           .expect(405)
@@ -680,7 +675,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["patch", "put", "delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api/articles")
           .expect(405)
@@ -762,9 +757,7 @@ describe("/api", () => {
         });
     });
     it("DELETE - Returns an array without the deleted comment by its comment_id", () => {
-      return request(app)
-        .delete("/api/comments/1")
-        .expect(204);
+      return request(app).delete("/api/comments/1").expect(204);
     });
     it("ERROR 404 - Returns a 404 when given an invalid inc_votes values in the body", () => {
       return request(app)
@@ -785,7 +778,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["get"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .get("/api/comments/1")
           .expect(405)
@@ -807,7 +800,7 @@ describe("/api", () => {
     });
     it("Error 405 - Status:405", () => {
       const invalidMethods = ["delete"];
-      const methodPromises = invalidMethods.map(method => {
+      const methodPromises = invalidMethods.map((method) => {
         return request(app)
           .delete("/api")
           .expect(405)

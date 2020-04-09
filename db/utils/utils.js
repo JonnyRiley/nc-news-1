@@ -1,9 +1,9 @@
-exports.formatDates = list => {
+exports.formatDates = (list) => {
   if (list.length === 0) {
     return list;
   } else {
     const newData = [];
-    list.forEach(time => {
+    list.forEach((time) => {
       const createdTime = { ...time };
       createdTime.created_at = new Date(createdTime.created_at);
       newData.push(createdTime);
@@ -14,24 +14,24 @@ exports.formatDates = list => {
 
 exports.makeRefObj = (list, key, value) => {
   const obj = {};
-  list.forEach(entry => {
+  list.forEach((entry) => {
     obj[entry[key]] = entry[value];
   });
   return obj;
 };
 
-exports.formatComments = (comments, articleRef) => {
-  return comments.map(iteratedComment => {
-    const newComments = { ...iteratedComment };
+// exports.formatComments = (comments, articleRef) => {
+//   return comments.map(iteratedComment => {
+//     const newComments = { ...iteratedComment };
 
-    const alteredObj = {
-      body: newComments.body,
-      article_id: articleRef[newComments.belongs_to],
-      author: newComments.created_by,
-      votes: newComments.votes,
-      created_at: new Date(newComments.created_at)
-    };
+//     const alteredObj = {
+//       body: newComments.body,
+//       article_id: articleRef[newComments.belongs_to],
+//       author: newComments.created_by,
+//       votes: newComments.votes,
+//       created_at: new Date(newComments.created_at)
+//     };
 
-    return alteredObj;
-  });
-};
+//     return alteredObj;
+//   });
+//};
